@@ -1,0 +1,55 @@
+name: Deploy VisorQuotation to Hetzner
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Publish application
+        run: dotnet publish -c Release -o ./publish --self-contained false -r linux-x64
+
+      - name: Deploy to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          source: "publish/*"
+          target: "/var/www/visorquotation"
+          strip_components: 1
+
+      - name: Restart service
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            # Install Playwright browsers if not present
+            if [ ! -d "/var/www/visorquotation/.playwright" ]; then
+              cd /var/www/visorquotation
+              PLAYWRIGHT_BROWSERS_PATH=/var/www/visorquotation/.playwright \
+                pwsh -Command "& { ./playwright.ps1 install chromium --with-deps }" 2>/dev/null || true
+            fi
+
+            # Ensure the service file exists
+            if [ ! -f /etc/systemd/system/visorquotation.service ]; then
+              echo "WARNING: systemd service not found. Run the one-time setup first."
+              exit 1
+            fi
+
+            sudo systemctl daemon-reload
+            sudo systemctl restart visorquotation
+            sleep 3
+            sudo systemctl status visorquotation --no-pager
