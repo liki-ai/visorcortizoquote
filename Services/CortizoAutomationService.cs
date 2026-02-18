@@ -1357,14 +1357,13 @@ public class CortizoAutomationService : IAsyncDisposable
     {
         try
         {
-            WriteToLogFile(AutomationLogLevel.Info, $"[SELECT] Trying selector: {selector} with value: {value}");
+            WriteToLogFileOnly(AutomationLogLevel.Info, $"[SELECT] Trying selector: {selector} with value: {value}");
             var element = await _page!.QuerySelectorAsync(selector);
             if (element != null)
             {
                 var isVisible = await element.IsVisibleAsync();
-                WriteToLogFile(AutomationLogLevel.Info, $"[SELECT] Found element, visible: {isVisible}");
+                WriteToLogFileOnly(AutomationLogLevel.Info, $"[SELECT] Found element, visible: {isVisible}");
                 
-                // Log available options
                 var options = await element.QuerySelectorAllAsync("option");
                 var optionValues = new List<string>();
                 foreach (var opt in options.Take(10))
@@ -1373,36 +1372,35 @@ public class CortizoAutomationService : IAsyncDisposable
                     var optText = (await opt.TextContentAsync() ?? "").Trim();
                     optionValues.Add($"{optVal}='{optText}'");
                 }
-                WriteToLogFile(AutomationLogLevel.Info, $"[SELECT] Options ({options.Count} total): {string.Join(", ", optionValues)}");
+                WriteToLogFileOnly(AutomationLogLevel.Info, $"[SELECT] Options ({options.Count} total): {string.Join(", ", optionValues)}");
                 
-                // Try by value first, then by label
                 try
                 {
                     await element.SelectOptionAsync(new SelectOptionValue { Value = value });
-                    WriteToLogFile(AutomationLogLevel.Info, $"[SELECT] Successfully set by value: {value}");
+                    WriteToLogFileOnly(AutomationLogLevel.Info, $"[SELECT] Successfully set by value: {value}");
                 }
                 catch (Exception ex1)
                 {
-                    WriteToLogFile(AutomationLogLevel.Info, $"[SELECT] Set by value failed: {ex1.Message}, trying by label...");
+                    WriteToLogFileOnly(AutomationLogLevel.Info, $"[SELECT] Set by value failed: {ex1.Message}, trying by label...");
                     try
                     {
                         await element.SelectOptionAsync(new SelectOptionValue { Label = value });
-                        WriteToLogFile(AutomationLogLevel.Info, $"[SELECT] Successfully set by label: {value}");
+                        WriteToLogFileOnly(AutomationLogLevel.Info, $"[SELECT] Successfully set by label: {value}");
                     }
                     catch (Exception ex2)
                     {
-                        WriteToLogFile(AutomationLogLevel.Warning, $"[SELECT] Set by label also failed: {ex2.Message}");
+                        WriteToLogFileOnly(AutomationLogLevel.Warning, $"[SELECT] Set by label also failed: {ex2.Message}");
                     }
                 }
             }
             else
             {
-                WriteToLogFile(AutomationLogLevel.Warning, $"[SELECT] Element not found: {selector}");
+                WriteToLogFileOnly(AutomationLogLevel.Warning, $"[SELECT] Element not found: {selector}");
             }
         }
         catch (Exception ex)
         {
-            WriteToLogFile(AutomationLogLevel.Error, $"[SELECT] Error: {ex.Message}");
+            WriteToLogFileOnly(AutomationLogLevel.Error, $"[SELECT] Error: {ex.Message}");
             _logger.LogWarning(ex, $"Failed to set select value with selector: {selector}");
         }
     }
@@ -1503,8 +1501,8 @@ public class CortizoAutomationService : IAsyncDisposable
         result.Logs.Add(entry);
         OnLog?.Invoke(entry);
 
-        // Write to log file
-        WriteToLogFile(level, message, details);
+        // Write to log file (skip SignalR since we already fired it above)
+        WriteToLogFileOnly(level, message, details);
 
         // Also log to standard logger
         switch (level)
@@ -1525,6 +1523,20 @@ public class CortizoAutomationService : IAsyncDisposable
     /// Write a log entry to the log file
     /// </summary>
     private void WriteToLogFile(AutomationLogLevel level, string message, string? details = null)
+    {
+        // Fire SignalR event so the UI receives detailed messages
+        OnLog?.Invoke(new AutomationLogEntry
+        {
+            Timestamp = DateTime.Now,
+            Level = level,
+            Message = message,
+            Details = details
+        });
+
+        WriteToLogFileOnly(level, message, details);
+    }
+
+    private void WriteToLogFileOnly(AutomationLogLevel level, string message, string? details = null)
     {
         try
         {
@@ -1563,11 +1575,10 @@ public class CortizoAutomationService : IAsyncDisposable
             var url = _page.Url;
             var title = await _page.TitleAsync();
             
-            WriteToLogFile(AutomationLogLevel.Info, $"[PAGE STATE - {context}]");
-            WriteToLogFile(AutomationLogLevel.Info, $"  URL: {url}");
-            WriteToLogFile(AutomationLogLevel.Info, $"  Title: {title}");
+            WriteToLogFileOnly(AutomationLogLevel.Info, $"[PAGE STATE - {context}]");
+            WriteToLogFileOnly(AutomationLogLevel.Info, $"  URL: {url}");
+            WriteToLogFileOnly(AutomationLogLevel.Info, $"  Title: {title}");
             
-            // Log key element states
             var elementsToCheck = new Dictionary<string, string>
             {
                 { "Login Form", "input[type='password']" },
@@ -1584,11 +1595,11 @@ public class CortizoAutomationService : IAsyncDisposable
                     var element = await _page.QuerySelectorAsync(selector);
                     var exists = element != null;
                     var visible = exists && await element!.IsVisibleAsync();
-                    WriteToLogFile(AutomationLogLevel.Info, $"  {name}: {(exists ? "Found" : "Not Found")}{(visible ? " (Visible)" : exists ? " (Hidden)" : "")}");
+                    WriteToLogFileOnly(AutomationLogLevel.Info, $"  {name}: {(exists ? "Found" : "Not Found")}{(visible ? " (Visible)" : exists ? " (Hidden)" : "")}");
                 }
                 catch
                 {
-                    WriteToLogFile(AutomationLogLevel.Info, $"  {name}: Check failed");
+                    WriteToLogFileOnly(AutomationLogLevel.Info, $"  {name}: Check failed");
                 }
             }
             
@@ -1596,7 +1607,7 @@ public class CortizoAutomationService : IAsyncDisposable
         }
         catch (Exception ex)
         {
-            WriteToLogFile(AutomationLogLevel.Warning, $"Failed to log page state: {ex.Message}");
+            WriteToLogFileOnly(AutomationLogLevel.Warning, $"Failed to log page state: {ex.Message}");
         }
     }
     
@@ -1609,47 +1620,44 @@ public class CortizoAutomationService : IAsyncDisposable
         {
             if (_page == null) return;
             
-            WriteToLogFile(AutomationLogLevel.Info, $"[AVAILABLE SELECTORS in {containerSelector}]");
+            WriteToLogFileOnly(AutomationLogLevel.Info, $"[AVAILABLE SELECTORS in {containerSelector}]");
             
-            // Log select elements
             var selects = await _page.QuerySelectorAllAsync($"{containerSelector} select");
-            WriteToLogFile(AutomationLogLevel.Info, $"  Found {selects.Count} select elements:");
-            foreach (var select in selects.Take(20)) // Limit to first 20
+            WriteToLogFileOnly(AutomationLogLevel.Info, $"  Found {selects.Count} select elements:");
+            foreach (var select in selects.Take(20))
             {
                 var id = await select.GetAttributeAsync("id") ?? "";
                 var name = await select.GetAttributeAsync("name") ?? "";
                 var visible = await select.IsVisibleAsync();
-                WriteToLogFile(AutomationLogLevel.Info, $"    - id='{id}' name='{name}' visible={visible}");
+                WriteToLogFileOnly(AutomationLogLevel.Info, $"    - id='{id}' name='{name}' visible={visible}");
             }
             
-            // Log input elements
             var inputs = await _page.QuerySelectorAllAsync($"{containerSelector} input[type='text']");
-            WriteToLogFile(AutomationLogLevel.Info, $"  Found {inputs.Count} text input elements:");
+            WriteToLogFileOnly(AutomationLogLevel.Info, $"  Found {inputs.Count} text input elements:");
             foreach (var input in inputs.Take(20))
             {
                 var id = await input.GetAttributeAsync("id") ?? "";
                 var name = await input.GetAttributeAsync("name") ?? "";
                 var visible = await input.IsVisibleAsync();
-                WriteToLogFile(AutomationLogLevel.Info, $"    - id='{id}' name='{name}' visible={visible}");
+                WriteToLogFileOnly(AutomationLogLevel.Info, $"    - id='{id}' name='{name}' visible={visible}");
             }
             
-            // Log button/link elements
             var buttons = await _page.QuerySelectorAllAsync($"{containerSelector} button, {containerSelector} input[type='submit'], {containerSelector} a[onclick]");
-            WriteToLogFile(AutomationLogLevel.Info, $"  Found {buttons.Count} button/link elements:");
+            WriteToLogFileOnly(AutomationLogLevel.Info, $"  Found {buttons.Count} button/link elements:");
             foreach (var btn in buttons.Take(20))
             {
                 var id = await btn.GetAttributeAsync("id") ?? "";
                 var text = (await btn.TextContentAsync() ?? "").Trim().Replace("\n", " ");
                 if (text.Length > 50) text = text.Substring(0, 50) + "...";
                 var visible = await btn.IsVisibleAsync();
-                WriteToLogFile(AutomationLogLevel.Info, $"    - id='{id}' text='{text}' visible={visible}");
+                WriteToLogFileOnly(AutomationLogLevel.Info, $"    - id='{id}' text='{text}' visible={visible}");
             }
             
             FlushLogBuffer();
         }
         catch (Exception ex)
         {
-            WriteToLogFile(AutomationLogLevel.Warning, $"Failed to log available selectors: {ex.Message}");
+            WriteToLogFileOnly(AutomationLogLevel.Warning, $"Failed to log available selectors: {ex.Message}");
         }
     }
     
