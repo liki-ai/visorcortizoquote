@@ -549,11 +549,43 @@
             </div>
         </div>
 
+        <!-- Filled Items Table -->
+        <div class="panel-card" id="filled-items-panel" style="display: none;">
+            <div class="panel-card-header" style="cursor: pointer;" data-bs-toggle="collapse" data-bs-target="#filledItemsBody" aria-expanded="true">
+                <span><i class="bi bi-table me-2"></i>Filled Items <span class="badge bg-light text-dark ms-2" id="filled-items-count">0</span></span>
+                <i class="bi bi-chevron-up small" id="filled-chevron"></i>
+            </div>
+            <div class="collapse show" id="filledItemsBody">
+                <div class="panel-card-body p-0">
+                    <div style="max-height: 280px; overflow-y: auto;">
+                        <table class="table table-sm table-hover table-striped mb-0" style="font-size: 11px;">
+                            <thead class="table-dark" style="position: sticky; top: 0; z-index: 1;">
+                                <tr>
+                                    <th style="width: 30px;">#</th>
+                                    <th style="width: 40px;">Type</th>
+                                    <th style="width: 70px;">REF</th>
+                                    <th style="width: 40px;">QTY</th>
+                                    <th>Description</th>
+                                    <th style="width: 80px;">Amount</th>
+                                    <th style="width: 60px;">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="filled-items-tbody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Execution Log (Real-time) -->
         <div class="panel-card" style="flex: 1;">
             <div class="panel-card-header">
                 <span><i class="bi bi-terminal me-2"></i>Live Log</span>
                 <div>
+                    <button class="btn btn-sm btn-outline-light me-1" id="btn-download-log" onclick="automation.downloadLog()" title="Download Log" style="display: none;">
+                        <i class="bi bi-download"></i>
+                    </button>
                     <button class="btn btn-sm btn-outline-light me-1" onclick="document.getElementById('log-container').scrollTop = document.getElementById('log-container').scrollHeight" title="Scroll to bottom">
                         <i class="bi bi-arrow-down"></i>
                     </button>
@@ -1033,7 +1065,21 @@
         // Check Excel status on page load
         excelCalc.checkStatus();
 
-        // Accordion chevron rotation
+        // Accordion chevron rotation - Filled Items
+        const filledBody = document.getElementById('filledItemsBody');
+        const filledChevron = document.getElementById('filled-chevron');
+        if (filledBody && filledChevron) {
+            filledBody.addEventListener('show.bs.collapse', () => {
+                filledChevron.classList.remove('bi-chevron-down');
+                filledChevron.classList.add('bi-chevron-up');
+            });
+            filledBody.addEventListener('hide.bs.collapse', () => {
+                filledChevron.classList.remove('bi-chevron-up');
+                filledChevron.classList.add('bi-chevron-down');
+            });
+        }
+
+        // Accordion chevron rotation - Excel
         const excelBody = document.getElementById('excelCalcBody');
         const excelChevron = document.getElementById('excel-chevron');
         if (excelBody && excelChevron) {

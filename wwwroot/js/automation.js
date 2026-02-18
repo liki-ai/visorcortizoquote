@@ -5,6 +5,9 @@ let isRunning = false;
 let filledCount = 0;
 let unfilledCount = 0;
 let totalItemCount = 0;
+let logText = '';
+let currentItemType = '';
+let filledItemsIndex = 0;
 
 async function initSignalR() {
     connection = new signalR.HubConnectionBuilder()
@@ -61,10 +64,14 @@ function addLogEntry(logEntry) {
 
     logContainer.appendChild(entry);
     logContainer.scrollTop = logContainer.scrollHeight;
+
+    // Accumulate log text for download
+    logText += `[${timestamp}] [${level.toUpperCase().padEnd(7)}] ${logEntry.message}\n`;
+    if (logEntry.details) logText += `    Details: ${logEntry.details}\n`;
 }
 
 function getLogIcon(level) {
-    switch (level.toLowerCase()) {
+    switch (level) {
         case 'success': return '✓';
         case 'error': return '✗';
         case 'warning': return '⚠';
@@ -87,7 +94,7 @@ function parseLogForProgress(logEntry) {
         setProgressBar(15);
     }
 
-    // Step: Header (valuation created first, then header fields)
+    // Step: Header
     else if (msg.includes('Creating new valuation')) {
         setActiveStep('header');
         setProgressLabel('Creating new valuation...');
@@ -101,22 +108,24 @@ function parseLogForProgress(logEntry) {
         setProgressLabel('Setting customized prices...');
         setProgressBar(28);
     }
-    else if (msg.includes('Header fields set complete') || msg.includes('Customized prices set complete')) {
+    else if (msg.includes('Customized prices set complete')) {
         completeStep('header');
         setProgressBar(30);
     }
 
-    // Step: Profiles
+    // Step: Profiles - start
     else if (msg.includes('Ensuring') && msg.includes('rows are available')) {
         setActiveStep('profiles');
         setProgressLabel('Preparing profile grid rows...');
-        setProgressBar(30);
+        setProgressBar(32);
         showFilledSummary();
+        showFilledItemsPanel();
         const m = msg.match(/(\d+) rows/);
         if (m) totalItemCount = parseInt(m[1]);
     }
     else if (msg.includes('Filling') && msg.includes('profile items')) {
         setActiveStep('profiles');
+        currentItemType = 'Profile';
         const m = msg.match(/Filling (\d+)/);
         if (m) totalItemCount = parseInt(m[1]);
         document.getElementById('stat-total-items').textContent = totalItemCount;
@@ -125,59 +134,63 @@ function parseLogForProgress(logEntry) {
         showCurrentItem();
     }
 
-    // Track individual profile rows: [ROW 0001] Processing: REF=2015, AMT=34
-    else if (msg.includes('[ROW ')) {
-        const refMatch = msg.match(/REF=(\S+)/);
+    // Track individual profile rows: [ROW 0001] Processing: REF=2015, AMT=34, DESC=...
+    else if (msg.includes('[ROW ') && msg.includes('Processing:')) {
+        const refMatch = msg.match(/REF=(\S+?)(?:,|$)/);
         const amtMatch = msg.match(/AMT=(\d+)/);
+        const descMatch = msg.match(/DESC=(.+)$/);
         const rowMatch = msg.match(/\[ROW\s+(\d+)\]/);
 
-        if (msg.includes('Processing:')) {
-            showCurrentItem();
-            document.getElementById('current-item-title').textContent = 'Filling Profile...';
-            if (refMatch) document.getElementById('current-item-ref').textContent = refMatch[1];
-            if (amtMatch) document.getElementById('current-item-qty').textContent = amtMatch[1];
-            if (rowMatch) {
-                const rowNum = parseInt(rowMatch[1]);
-                document.getElementById('current-item-counter').textContent = `${rowNum}/${totalItemCount}`;
-                const pct = 35 + ((rowNum / Math.max(totalItemCount, 1)) * 30);
-                setProgressBar(Math.min(pct, 65));
-                setProgressLabel(`Filling profile ${rowNum}/${totalItemCount}...`);
-            }
+        showCurrentItem();
+        document.getElementById('current-item-title').textContent = 'Filling Profile...';
+        if (refMatch) document.getElementById('current-item-ref').textContent = refMatch[1];
+        if (amtMatch) document.getElementById('current-item-qty').textContent = amtMatch[1];
+        if (descMatch) document.getElementById('current-item-desc').textContent = descMatch[1].trim();
+        if (rowMatch) {
+            const rowNum = parseInt(rowMatch[1]);
+            document.getElementById('current-item-counter').textContent = `${rowNum}/${totalItemCount}`;
+            const pct = 35 + ((rowNum / Math.max(totalItemCount, 1)) * 30);
+            setProgressBar(Math.min(pct, 65));
+            setProgressLabel(`Filling profile ${rowNum}/${totalItemCount}...`);
         }
+        // Reset finish/shade display for this row
+        document.getElementById('current-item-finish').textContent = '-';
+        document.getElementById('current-item-shade').textContent = '-';
+    }
 
-        if (msg.includes('Amount calculated')) {
-            filledCount++;
-            document.getElementById('stat-filled').textContent = filledCount;
-        }
-        if (msg.includes('Amount still not calculated')) {
-            unfilledCount++;
-            document.getElementById('stat-unfilled').textContent = unfilledCount;
-        }
+    // Profile row amount calculated
+    else if (msg.includes('[ROW ') && msg.includes('Amount calculated')) {
+        const amountMatch = msg.match(/:\s*(.+?)$/);
+        const rowMatch = msg.match(/\[ROW\s+(\d+)\]/);
+        filledCount++;
+        document.getElementById('stat-filled').textContent = filledCount;
+        addFilledItemRow('Profile', amountMatch ? amountMatch[1].trim() : 'OK', true, rowMatch);
+    }
+    // Profile row amount NOT calculated
+    else if (msg.includes('[ROW ') && msg.includes('Amount still not calculated')) {
+        const rowMatch = msg.match(/\[ROW\s+(\d+)\]/);
+        unfilledCount++;
+        document.getElementById('stat-unfilled').textContent = unfilledCount;
+        addFilledItemRow('Profile', '-', false, rowMatch);
     }
 
     // Profile batch complete
     else if (msg.includes('profile rows filled successfully')) {
         completeStep('profiles');
-        const m = msg.match(/(\d+) profile/);
-        if (m) {
-            filledCount = parseInt(m[1]);
-            document.getElementById('stat-filled').textContent = filledCount;
-        }
         setProgressBar(65);
         hideCurrentItem();
     }
-
-    // Profile batch failed (but not cancelled)
     else if (msg.includes('Profile batch fill failed') && !msg.includes('canceled')) {
-        const activeStep = document.querySelector('#step-profiles');
-        if (activeStep) { activeStep.classList.remove('active'); activeStep.classList.add('error'); }
+        const s = document.getElementById('step-profiles');
+        if (s) { s.classList.remove('active'); s.classList.add('error'); }
         setProgressBar(65);
         hideCurrentItem();
     }
 
-    // Step: Accessories
+    // Step: Accessories start
     else if (msg.includes('Filling') && msg.includes('accessories')) {
         setActiveStep('accessories');
+        currentItemType = 'Acc';
         const m = msg.match(/Filling (\d+)/);
         let accCount = 0;
         if (m) accCount = parseInt(m[1]);
@@ -189,40 +202,47 @@ function parseLogForProgress(logEntry) {
         document.getElementById('current-item-title').textContent = 'Filling Accessory...';
     }
 
-    // Track accessory fills: [ACC 0001] Processing: REF=12345, AMT=10
-    else if (msg.includes('[ACC ')) {
-        const refMatch = msg.match(/REF=(\S+)/);
+    // Track accessory rows: [ACC 0001] Processing: REF=222085, AMT=104, DESC=Die cut cleat
+    else if (msg.includes('[ACC ') && msg.includes('Processing:')) {
+        const refMatch = msg.match(/REF=(\S+?)(?:,|$)/);
         const amtMatch = msg.match(/AMT=(\d+)/);
+        const descMatch = msg.match(/DESC=(.+)$/);
         const rowMatch = msg.match(/\[ACC\s+(\d+)\]/);
 
-        if (msg.includes('Processing:')) {
-            if (refMatch) document.getElementById('current-item-ref').textContent = refMatch[1];
-            if (amtMatch) document.getElementById('current-item-qty').textContent = amtMatch[1];
-            if (rowMatch) {
-                document.getElementById('current-item-counter').textContent = `Acc ${rowMatch[1]}`;
-            }
+        showCurrentItem();
+        document.getElementById('current-item-title').textContent = 'Filling Accessory...';
+        if (refMatch) document.getElementById('current-item-ref').textContent = refMatch[1];
+        if (amtMatch) document.getElementById('current-item-qty').textContent = amtMatch[1];
+        if (descMatch) document.getElementById('current-item-desc').textContent = descMatch[1].trim();
+        if (rowMatch) {
+            document.getElementById('current-item-counter').textContent = `Acc ${rowMatch[1]}`;
         }
+        document.getElementById('current-item-finish').textContent = '-';
+        document.getElementById('current-item-shade').textContent = '-';
+    }
 
-        if (msg.includes('Amount calculated') || (level === 'success' && msg.includes('calculated'))) {
-            filledCount++;
-            document.getElementById('stat-filled').textContent = filledCount;
-        }
-        if (msg.includes('Amount still not calculated') || msg.includes('not calculated after retries')) {
+    // Accessory amount calculated
+    else if (msg.includes('[ACC ') && msg.includes('Amount calculated')) {
+        const amountMatch = msg.match(/Amount calculated[^:]*:\s*([^,]+)/);
+        const rowMatch = msg.match(/\[ACC\s+(\d+)\]/);
+        filledCount++;
+        document.getElementById('stat-filled').textContent = filledCount;
+        addFilledItemRow('Acc', amountMatch ? amountMatch[1].trim() : 'OK', true, rowMatch);
+    }
+    // Accessory amount NOT calculated  
+    else if (msg.includes('[ACC ') && (msg.includes('Amount still not calculated') || msg.includes('Amount not calculated'))) {
+        const rowMatch = msg.match(/\[ACC\s+(\d+)\]/);
+        // Only count the final failure, not the intermediate retry message
+        if (msg.includes('still not calculated') || !msg.includes('retrying')) {
             unfilledCount++;
             document.getElementById('stat-unfilled').textContent = unfilledCount;
+            addFilledItemRow('Acc', '-', false, rowMatch);
         }
     }
 
-    else if (msg.includes('accessories filled successfully')) {
+    else if (msg.includes('accessories filled successfully') || msg.includes('Accessory fill complete')) {
         completeStep('accessories');
         setProgressBar(85);
-        hideCurrentItem();
-    }
-
-    // Stopped by user
-    else if (msg.includes('stopped by user') || msg.includes('Automation was stopped')) {
-        setStatusBadge('Stopped', 'warning');
-        setProgressLabel('Automation stopped by user');
         hideCurrentItem();
     }
 
@@ -239,11 +259,7 @@ function parseLogForProgress(logEntry) {
 
     // Unfilled warnings
     else if (msg.includes('UNFILLED PROFILES') || msg.includes('UNFILLED ACCESSORIES')) {
-        const countMatch = msg.match(/(\d+) items/);
-        if (countMatch) {
-            unfilledCount += parseInt(countMatch[1]);
-            document.getElementById('stat-unfilled').textContent = unfilledCount;
-        }
+        // Already counted via individual rows - no double-counting
     }
 
     // Generating report
@@ -258,8 +274,15 @@ function parseLogForProgress(logEntry) {
         setProgressBar(95);
     }
 
+    // Stopped by user
+    else if (msg.includes('stopped by user') || msg.includes('Automation was stopped')) {
+        setStatusBadge('Stopped', 'warning');
+        setProgressLabel('Automation stopped by user');
+        hideCurrentItem();
+    }
+
     // Error
-    else if (level === 'error' && msg.includes('failed')) {
+    else if (level === 'error' && msg.includes('failed') && !msg.includes('[ROW') && !msg.includes('[ACC')) {
         const activeStep = document.querySelector('.step-item.active');
         if (activeStep) {
             activeStep.classList.remove('active');
@@ -276,10 +299,56 @@ function parseLogForProgress(logEntry) {
     }
 }
 
+// Track last processing row info for filled items table
+let lastProcessingInfo = { ref: '', amt: '', desc: '', type: '' };
+
+function addFilledItemRow(type, amount, success, rowMatch) {
+    const tbody = document.getElementById('filled-items-tbody');
+    if (!tbody) return;
+
+    filledItemsIndex++;
+
+    const ref = document.getElementById('current-item-ref')?.textContent || '-';
+    const qty = document.getElementById('current-item-qty')?.textContent || '-';
+    const desc = document.getElementById('current-item-desc')?.textContent || '-';
+
+    const statusBadge = success
+        ? '<span class="badge bg-success">OK</span>'
+        : '<span class="badge bg-warning text-dark">Missing</span>';
+
+    const rowClass = success ? '' : 'table-warning';
+
+    const tr = document.createElement('tr');
+    tr.className = rowClass;
+    tr.innerHTML = `
+        <td>${filledItemsIndex}</td>
+        <td><span class="badge ${type === 'Profile' ? 'bg-primary' : 'bg-info text-dark'}">${type}</span></td>
+        <td class="fw-bold">${escapeHtml(ref)}</td>
+        <td>${escapeHtml(qty)}</td>
+        <td class="text-truncate" style="max-width: 180px;" title="${escapeHtml(desc)}">${escapeHtml(desc)}</td>
+        <td class="fw-bold ${success ? 'text-success' : 'text-danger'}">${escapeHtml(amount)}</td>
+        <td>${statusBadge}</td>
+    `;
+    tbody.appendChild(tr);
+
+    // Update count badge
+    const countEl = document.getElementById('filled-items-count');
+    if (countEl) countEl.textContent = filledItemsIndex;
+
+    // Scroll table to bottom
+    const tableContainer = tbody.closest('div[style*="overflow"]');
+    if (tableContainer) tableContainer.scrollTop = tableContainer.scrollHeight;
+}
+
+function showFilledItemsPanel() {
+    const panel = document.getElementById('filled-items-panel');
+    if (panel) panel.style.display = 'block';
+}
+
 function setActiveStep(stepId) {
     const step = document.getElementById('step-' + stepId);
     if (!step || step.classList.contains('completed')) return;
-    
+
     document.querySelectorAll('.step-item.active').forEach(el => {
         if (el.id !== 'step-' + stepId) {
             el.classList.remove('active');
@@ -361,6 +430,10 @@ function handleComplete(result) {
     hideCurrentItem();
     showFilledSummary();
 
+    // Show download log button
+    const dlBtn = document.getElementById('btn-download-log');
+    if (dlBtn) dlBtn.style.display = 'inline-block';
+
     document.getElementById('stat-filled').textContent = result.successfulItems || filledCount;
     document.getElementById('stat-unfilled').textContent =
         (result.unfilledProfiles ? result.unfilledProfiles.length : 0) +
@@ -386,7 +459,7 @@ function handleComplete(result) {
     if (summaryEl) {
         summaryEl.style.display = 'block';
         let unfilledHtml = '';
-        
+
         if (result.unfilledProfiles && result.unfilledProfiles.length > 0) {
             unfilledHtml += '<div class="mt-2"><strong>Unfilled Profiles:</strong><ul class="mb-1">';
             result.unfilledProfiles.forEach(item => {
@@ -394,7 +467,7 @@ function handleComplete(result) {
             });
             unfilledHtml += '</ul></div>';
         }
-        
+
         if (result.unfilledAccessories && result.unfilledAccessories.length > 0) {
             unfilledHtml += '<div class="mt-2"><strong>Unfilled Accessories:</strong><ul class="mb-1">';
             result.unfilledAccessories.forEach(item => {
@@ -411,11 +484,25 @@ function handleComplete(result) {
                 ${unfilledHtml}
                 <div class="mt-2">
                     ${result.screenshotPath ? `<a href="/Home/DownloadFile?path=${encodeURIComponent(result.screenshotPath)}" class="btn btn-sm btn-outline-primary me-1">Screenshot</a>` : ''}
-                    ${result.tracePath ? `<a href="/Home/DownloadFile?path=${encodeURIComponent(result.tracePath)}" class="btn btn-sm btn-outline-primary">Log File</a>` : ''}
+                    ${result.tracePath ? `<a href="/Home/DownloadFile?path=${encodeURIComponent(result.tracePath)}" class="btn btn-sm btn-outline-primary me-1">Server Log</a>` : ''}
+                    <button class="btn btn-sm btn-outline-secondary" onclick="automation.downloadLog()"><i class="bi bi-download me-1"></i>Download UI Log</button>
                 </div>
             </div>
         `;
     }
+}
+
+function downloadLog() {
+    if (!logText) return;
+    const blob = new Blob([logText], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `automation-log-${new Date().toISOString().slice(0,19).replace(/[T:]/g,'-')}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
 }
 
 async function stopAutomation() {
@@ -463,6 +550,8 @@ async function startAutomation() {
     filledCount = 0;
     unfilledCount = 0;
     totalItemCount = 0;
+    filledItemsIndex = 0;
+    logText = '';
 
     // Reset dashboard
     document.getElementById('log-container').innerHTML = '';
@@ -478,6 +567,16 @@ async function startAutomation() {
     document.getElementById('stat-cortizo-total').textContent = '-';
     hideCurrentItem();
     showFilledSummary();
+
+    // Reset filled items table
+    const tbody = document.getElementById('filled-items-tbody');
+    if (tbody) tbody.innerHTML = '';
+    const countEl = document.getElementById('filled-items-count');
+    if (countEl) countEl.textContent = '0';
+
+    // Hide download button
+    const dlBtn = document.getElementById('btn-download-log');
+    if (dlBtn) dlBtn.style.display = 'none';
 
     const summaryEl = document.getElementById('automation-summary');
     if (summaryEl) summaryEl.style.display = 'none';
@@ -522,7 +621,7 @@ async function startAutomation() {
 
         if (confirmBtn) {
             confirmBtn.disabled = false;
-            confirmBtn.innerHTML = '<i class="bi bi-play-fill me-2"></i>Run Cortizo Automation';
+            confirmBtn.innerHTML = '<i class="bi bi-play-fill me-2"></i>Run Automation';
         }
     }
 }
@@ -558,5 +657,6 @@ document.addEventListener('DOMContentLoaded', function () {
 window.automation = {
     start: startAutomation,
     stop: stopAutomation,
-    selectAll: selectAllProfiles
+    selectAll: selectAllProfiles,
+    downloadLog: downloadLog
 };
