@@ -17,7 +17,7 @@ jobs:
           dotnet-version: "8.0.x"
 
       - name: Publish application
-        run: dotnet publish -c Release -o ./publish --self-contained false -r linux-x64
+        run: dotnet publish VisorQuotationWebApp.csproj -c Release -o ./publish --self-contained false -r linux-x64
 
       - name: Deploy to server
         uses: appleboy/scp-action@v0.1.7
