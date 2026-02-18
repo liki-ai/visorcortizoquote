@@ -35,13 +35,40 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
+          command_timeout: 10m
           script: |
+            set -e
+
             # Install .NET 8 runtime if not present
             if ! command -v dotnet &> /dev/null; then
               echo "--- Installing .NET 8 ASP.NET Runtime ---"
               apt-get update && apt-get install -y aspnetcore-runtime-8.0
             fi
-            echo "dotnet version: $(dotnet --info | head -2)"
+            echo "dotnet: $(dotnet --list-runtimes | head -1)"
+
+            # Install PowerShell if not present (needed for Playwright)
+            if ! command -v pwsh &> /dev/null; then
+              echo "--- Installing PowerShell ---"
+              apt-get update
+              apt-get install -y wget apt-transport-https
+              . /etc/os-release
+              wget -q "https://packages.microsoft.com/config/ubuntu/$VERSION_ID/packages-microsoft-prod.deb"
+              dpkg -i packages-microsoft-prod.deb
+              rm packages-microsoft-prod.deb
+              apt-get update
+              apt-get install -y powershell
+            fi
+            echo "pwsh: $(pwsh --version)"
+
+            # Install Playwright Chromium browser if not present
+            if [ ! -d "/root/.cache/ms-playwright" ] || [ -z "$(ls -A /root/.cache/ms-playwright 2>/dev/null)" ]; then
+              echo "--- Installing Playwright Chromium ---"
+              cd /var/www/visorquotation
+              pwsh playwright.ps1 install --with-deps chromium
+              echo "Playwright browsers installed"
+            else
+              echo "Playwright browsers already installed"
+            fi
 
             # Create systemd service if not present
             if [ ! -f /etc/systemd/system/visorquotation.service ]; then
