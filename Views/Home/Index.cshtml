@@ -1,0 +1,984 @@
+@model VisorQuotationWebApp.Models.QuotationViewModel
+@{
+    ViewData["Title"] = "Visor Quotation - Cortizo Automation";
+}
+
+<!-- Warning Banner -->
+<div class="warning-banner">
+    <i class="bi bi-exclamation-triangle-fill"></i>
+    <div>
+        <strong>Warning:</strong> This automation will control a browser session and submit data to CortizoCenter.
+        Please ensure all data is correct before running the automation.
+    </div>
+</div>
+
+<div class="quotation-container">
+    <!-- LEFT PANEL: Upload, Grid, Automation -->
+    <div class="left-panel">
+        <!-- Upload Section -->
+        <div class="panel-card">
+            <div class="panel-card-header">
+                <span><i class="bi bi-file-earmark-pdf me-2"></i>Upload Stock List PDF</span>
+            </div>
+            <div class="panel-card-body">
+                <div class="upload-area" id="upload-area">
+                    <div class="upload-icon">
+                        <i class="bi bi-cloud-arrow-up"></i>
+                    </div>
+                    <h5>Drag & Drop PDF here</h5>
+                    <p class="text-muted mb-3">or click to browse</p>
+                    <input type="file" id="pdf-input" accept=".pdf" class="d-none">
+                    <div id="file-name" class="mt-2 text-primary fw-bold">
+                        @if (!string.IsNullOrEmpty(Model.UploadedFileName))
+                        {
+                            <text>@Model.UploadedFileName</text>
+                        }
+                    </div>
+                </div>
+                <div id="upload-progress" class="progress mt-3 d-none">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 0%"></div>
+                </div>
+                <div id="upload-error" class="alert alert-danger mt-3 d-none"></div>
+            </div>
+        </div>
+
+        <!-- Credentials Section -->
+        <div class="panel-card">
+            <div class="panel-card-header">
+                <span><i class="bi bi-key me-2"></i>Cortizo Credentials</span>
+            </div>
+            <div class="panel-card-body">
+                <form id="automation-form">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Username</label>
+                            <input type="text" class="form-control" name="username" id="username" 
+                                   value="salesadria" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Password</label>
+                            <input type="password" class="form-control" name="password" id="password" 
+                                   value="alumasters" required>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Profiles Grid -->
+        <div class="panel-card">
+            <div class="panel-card-header">
+                <span><i class="bi bi-table me-2"></i>Extracted Profiles</span>
+                <span id="selected-count" class="badge bg-light text-dark">0/0 selected</span>
+            </div>
+            <div class="panel-card-body">
+                <div class="mb-2">
+                    <button type="button" class="btn btn-sm btn-outline-primary me-2" onclick="automation.selectAll(true)">
+                        Select All
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="automation.selectAll(false)">
+                        Deselect All
+                    </button>
+                </div>
+                <div class="profiles-grid">
+                    <table class="table table-sm table-hover profiles-table" id="profiles-table">
+                        <thead>
+                            <tr>
+                                <th width="40"><input type="checkbox" id="select-all-cb" onchange="automation.selectAll(this.checked)"></th>
+                                <th>REF</th>
+                                <th>AMT</th>
+                                <th>Finish 1</th>
+                                <th>Shade 1</th>
+                                <th>Finish 2</th>
+                                <th>Shade 2</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody id="profiles-tbody">
+                            @if (Model.ParsedPdf?.Profiles != null)
+                            {
+                                foreach (var profile in Model.ParsedPdf.Profiles)
+                                {
+                                    <tr>
+                                        <td><input type="checkbox" class="profile-checkbox" value="@profile.Id" checked></td>
+                                        <td>@profile.RefNumber</td>
+                                        <td>@profile.Amount</td>
+                                        <td>@profile.Finish1</td>
+                                        <td>@profile.Shade1</td>
+                                        <td>@profile.Finish2</td>
+                                        <td>@profile.Shade2</td>
+                                        <td>@profile.Description</td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                <tr id="no-data-row">
+                                    <td colspan="8" class="text-center text-muted py-4">
+                                        <i class="bi bi-inbox me-2"></i>Upload a PDF to see extracted profiles
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Accessories & Hardware Grid -->
+        <div class="panel-card">
+            <div class="panel-card-header">
+                <span><i class="bi bi-box-seam me-2"></i>Accessories & Hardware</span>
+                <span id="accessories-count" class="badge bg-light text-dark">0 items</span>
+            </div>
+            <div class="panel-card-body">
+                <div class="mb-2">
+                    <button type="button" class="btn btn-sm btn-outline-primary me-2" onclick="selectAllAccessories(true)">
+                        Select All
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="selectAllAccessories(false)">
+                        Deselect All
+                    </button>
+                </div>
+                <div class="profiles-grid">
+                    <table class="table table-sm table-hover profiles-table" id="accessories-table">
+                        <thead>
+                            <tr>
+                                <th width="40"><input type="checkbox" id="select-all-acc-cb" onchange="selectAllAccessories(this.checked)" checked></th>
+                                <th>Source</th>
+                                <th>REF</th>
+                                <th>QTY</th>
+                                <th>Colour</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody id="accessories-tbody">
+                            <tr id="no-acc-data-row">
+                                <td colspan="6" class="text-center text-muted py-4">
+                                    <i class="bi bi-inbox me-2"></i>Upload a PDF to see accessories & hardware
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Excel Price Calculation (Offline) -->
+        <div class="panel-card">
+            <div class="panel-card-header">
+                <span><i class="bi bi-file-earmark-excel me-2"></i>Offline Price Calculation</span>
+                <span id="excel-status" class="badge bg-secondary">Not Loaded</span>
+            </div>
+            <div class="panel-card-body">
+                <p class="text-muted small mb-3">Load Excel price lists to calculate totals without Cortizo automation.</p>
+                
+                <div class="mb-3">
+                    <label class="form-label small fw-bold">Profile Prices Excel:</label>
+                    <div class="input-group input-group-sm">
+                        <input type="file" class="form-control" id="profile-excel" accept=".xlsx,.xls">
+                        <button class="btn btn-outline-secondary" type="button" onclick="excelCalc.loadProfilePrices()">
+                            <i class="bi bi-upload"></i>
+                        </button>
+                    </div>
+                    <small id="profile-excel-status" class="text-muted"></small>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label small fw-bold">Accessory Prices Excel:</label>
+                    <div class="input-group input-group-sm">
+                        <input type="file" class="form-control" id="accessory-excel" accept=".xlsx,.xls">
+                        <button class="btn btn-outline-secondary" type="button" onclick="excelCalc.loadAccessoryPrices()">
+                            <i class="bi bi-upload"></i>
+                        </button>
+                    </div>
+                    <small id="accessory-excel-status" class="text-muted"></small>
+                </div>
+
+                <hr class="my-2">
+                
+                <div class="row g-2 mb-3">
+                    <div class="col-6">
+                        <label class="form-label small">Custom With Break (€/kg):</label>
+                        <input type="number" step="0.01" class="form-control form-control-sm" id="custom-with-break" value="7.56">
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label small">Custom Without Break (€/kg):</label>
+                        <input type="number" step="0.01" class="form-control form-control-sm" id="custom-without-break" value="5.16">
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small">Accessory Discount (%):</label>
+                    <input type="number" step="0.1" class="form-control form-control-sm" id="accessory-discount" value="10">
+                </div>
+                
+                <button type="button" class="btn btn-primary w-100" id="btn-calculate-excel" 
+                        onclick="excelCalc.calculateTotals()" disabled>
+                    <i class="bi bi-calculator me-2"></i>Calculate Totals from Excel
+                </button>
+                
+                <div id="excel-calculation-result" class="mt-3" style="display: none;">
+                    <div class="card bg-light">
+                        <div class="card-body p-2">
+                            <div class="d-flex justify-content-between">
+                                <span>Profiles Total:</span>
+                                <strong id="excel-profiles-total">€0.00</strong>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span>Accessories Total:</span>
+                                <strong id="excel-accessories-total">€0.00</strong>
+                            </div>
+                            <hr class="my-1">
+                            <div class="d-flex justify-content-between">
+                                <span class="fw-bold">Grand Total:</span>
+                                <strong id="excel-grand-total" class="text-success">€0.00</strong>
+                            </div>
+                            <div class="mt-2">
+                                <small id="excel-match-summary" class="text-muted"></small>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Missing items table -->
+                    <div id="missing-items-section" class="mt-2" style="display: none;">
+                        <div class="card border-warning">
+                            <div class="card-header bg-warning bg-opacity-25 py-2">
+                                <strong class="text-dark"><i class="bi bi-exclamation-triangle me-1"></i>Missing Items - Need Manual Price</strong>
+                            </div>
+                            <div class="card-body p-0">
+                                <table class="table table-sm table-hover mb-0" id="missing-items-table">
+                                    <thead>
+                                        <tr class="table-warning">
+                                            <th>Type</th>
+                                            <th>REF</th>
+                                            <th>QTY</th>
+                                            <th>Description</th>
+                                            <th>Finish</th>
+                                            <th>Reason</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="missing-items-tbody">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Automation Options & Run -->
+        <div class="panel-card">
+            <div class="panel-card-header">
+                <span><i class="bi bi-gear me-2"></i>Cortizo Automation</span>
+            </div>
+            <div class="panel-card-body">
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="checkbox" id="generateReport" name="generateReport">
+                    <label class="form-check-label" for="generateReport">
+                        Generate Report after filling data
+                    </label>
+                </div>
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" id="createProforma" name="createProforma">
+                    <label class="form-check-label" for="createProforma">
+                        Create Proforma after filling data
+                    </label>
+                </div>
+                <div class="progress-container">
+                    <div class="progress">
+                        <div class="progress-bar bg-success" id="progress-bar" style="width: 0%"></div>
+                    </div>
+                    <div id="progress-text" class="text-muted">Ready to run</div>
+                </div>
+                <button type="button" class="btn btn-success btn-confirm w-100 mt-3" id="btn-confirm" 
+                        onclick="automation.start()" disabled>
+                    <i class="bi bi-play-fill me-2"></i>Run Cortizo Automation
+                </button>
+                <div id="automation-summary" class="mt-3" style="display: none;"></div>
+            </div>
+        </div>
+
+        <!-- Execution Log -->
+        <div class="panel-card">
+            <div class="panel-card-header">
+                <span><i class="bi bi-terminal me-2"></i>Execution Log</span>
+                <button class="btn btn-sm btn-outline-light" onclick="document.getElementById('log-container').innerHTML=''">
+                    Clear
+                </button>
+            </div>
+            <div class="panel-card-body p-0">
+                <div class="log-container" id="log-container">
+                    <div class="log-entry log-info">
+                        <span class="log-time">--:--:--</span>
+                        <span class="log-icon">ℹ</span>
+                        <span class="log-message">Ready. Upload a PDF and click "Run Automation" to start.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- RIGHT PANEL: Header Info & PDF Preview -->
+    <div class="right-panel">
+        <!-- Header Info -->
+        <div class="panel-card">
+            <div class="panel-card-header">
+                <span><i class="bi bi-info-circle me-2"></i>Quotation Header Settings</span>
+            </div>
+            <div class="panel-card-body">
+                <div class="header-info">
+                    <div class="form-group">
+                        <label>Project Name (from PDF)</label>
+                        <input type="text" class="form-control" id="projectName" readonly
+                               value="@(Model.ParsedPdf?.Header?.ProjectName ?? "")">
+                    </div>
+                    <div class="form-group">
+                        <label>PDF Date/Time</label>
+                        <input type="text" class="form-control" id="pdfDateTime" readonly
+                               value="@(Model.ParsedPdf?.Header?.PdfDateTime ?? "")">
+                    </div>
+                    <div class="form-group">
+                        <label>Assembly Place</label>
+                        <input type="text" class="form-control" id="assemblyPlace" readonly
+                               value="@(Model.ParsedPdf?.Header?.AssemblyPlace ?? "")">
+                    </div>
+                    <div class="form-group">
+                        <label>Microns</label>
+                        <select class="form-select" name="microns" id="microns" form="automation-form">
+                            @{
+                                var micronValues = new[] { 15, 20, 25 };
+                                foreach (var m in micronValues)
+                                {
+                                    if (Model.Microns == m)
+                                    {
+                                        <option value="@m" selected="selected">@m</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@m">@m</option>
+                                    }
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>CIF</label>
+                        <input type="text" class="form-control" name="cif" id="cif" 
+                               value="@Model.Cif" form="automation-form">
+                    </div>
+                    <div class="form-group">
+                        <label>Client Code</label>
+                        <input type="text" class="form-control" name="clientCode" id="clientCode" 
+                               value="@Model.ClientCode" form="automation-form">
+                    </div>
+                    <div class="form-group">
+                        <label>Language</label>
+                        <select class="form-select" name="language" id="language" form="automation-form">
+                            @{
+                                var languages = new[] { "ENGLISH", "SPANISH" };
+                                foreach (var lang in languages)
+                                {
+                                    if (Model.Language == lang)
+                                    {
+                                        <option value="@lang" selected="selected">@lang</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@lang">@lang</option>
+                                    }
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Client Purchase Order</label>
+                        <input type="text" class="form-control" name="clientPurchaseOrder" id="clientPurchaseOrder" 
+                               value="@Model.ClientPurchaseOrder" form="automation-form">
+                    </div>
+                    <div class="form-group">
+                        <label>Total Pages</label>
+                        <input type="text" class="form-control" id="totalPages" readonly
+                               value="@(Model.ParsedPdf?.Header?.TotalPages.ToString() ?? "")">
+                    </div>
+                </div>
+                
+                <hr class="my-3">
+                <h6>General Colour Settings</h6>
+                <div class="header-info">
+                    <div class="form-group">
+                        <label>Finish 1</label>
+                        <select class="form-select" name="generalFinish1" id="generalFinish1" form="automation-form">
+                            @{
+                                // Cortizo finish values: value=code, display=name
+                                var finishOptions = new Dictionary<string, string> {
+                                    { "90", "SPECIAL 1 POWDER COATING" },
+                                    { "91", "SPECIAL 2 POWDER COATING" },
+                                    { "92", "SPECIAL 3 POWDER COATING" },
+                                    { "9", "STANDARD POWDER COATING" },
+                                    { "8", "MILL FINISH" },
+                                    { "4", "WHITE POWDER COATING -9010" },
+                                    { "1", "SILVER ANODISED (1)" },
+                                    { "10", "BLACK ANODISED (10)" }
+                                };
+                                foreach (var kv in finishOptions)
+                                {
+                                    if (Model.GeneralFinish1 == kv.Key)
+                                    {
+                                        <option value="@kv.Key" selected="selected">@kv.Value</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@kv.Key">@kv.Value</option>
+                                    }
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Shade 1</label>
+                        <input type="text" class="form-control" name="generalShade1" id="generalShade1" 
+                               value="@Model.GeneralShade1" form="automation-form" placeholder="e.g., P1019M">
+                    </div>
+                    <div class="form-group">
+                        <label>Finish 2</label>
+                        <select class="form-select" name="generalFinish2" id="generalFinish2" form="automation-form">
+                            @{
+                                foreach (var kv in finishOptions)
+                                {
+                                    if (Model.GeneralFinish2 == kv.Key)
+                                    {
+                                        <option value="@kv.Key" selected="selected">@kv.Value</option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@kv.Key">@kv.Value</option>
+                                    }
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Shade 2</label>
+                        <input type="text" class="form-control" name="generalShade2" id="generalShade2" 
+                               value="@Model.GeneralShade2" form="automation-form" placeholder="e.g., P1019M">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PDF Preview -->
+        <div class="panel-card pdf-preview">
+            <div class="panel-card-header">
+                <span><i class="bi bi-file-earmark-pdf me-2"></i>PDF Preview</span>
+            </div>
+            <div class="pdf-toolbar">
+                <button class="btn btn-sm btn-outline-secondary" onclick="pdfViewer.prevPage()" title="Previous Page">
+                    <i class="bi bi-chevron-left"></i>
+                </button>
+                <span>Page <span id="page-num">-</span> of <span id="page-count">-</span></span>
+                <button class="btn btn-sm btn-outline-secondary" onclick="pdfViewer.nextPage()" title="Next Page">
+                    <i class="bi bi-chevron-right"></i>
+                </button>
+                <span class="ms-3"></span>
+                <button class="btn btn-sm btn-outline-secondary" onclick="pdfViewer.zoomOut()" title="Zoom Out">
+                    <i class="bi bi-zoom-out"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-secondary" onclick="pdfViewer.zoomIn()" title="Zoom In">
+                    <i class="bi bi-zoom-in"></i>
+                </button>
+            </div>
+            <div class="pdf-container" id="pdf-container">
+                @if (Model.ParsedPdf != null)
+                {
+                    <canvas id="pdf-canvas"></canvas>
+                }
+                else
+                {
+                    <div class="pdf-placeholder" id="pdf-placeholder">
+                        <i class="bi bi-file-earmark-pdf"></i>
+                        <p>Upload a PDF to preview it here</p>
+                    </div>
+                    <canvas id="pdf-canvas" style="display: none;"></canvas>
+                }
+            </div>
+            <div id="pdf-error" class="alert alert-danger m-3" style="display: none;"></div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <!-- PDF.js from CDN (can be self-hosted later) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    </script>
+    
+    <!-- SignalR -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
+    <!-- Custom Scripts -->
+    <script src="~/js/pdf-viewer.js"></script>
+    <script src="~/js/automation.js"></script>
+    
+    <script>
+        // Initialize PDF viewer
+        pdfViewer.init('pdf-canvas');
+        
+        // File upload handling
+        const uploadArea = document.getElementById('upload-area');
+        const pdfInput = document.getElementById('pdf-input');
+        const confirmBtn = document.getElementById('btn-confirm');
+        
+        uploadArea.addEventListener('click', () => pdfInput.click());
+        
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            if (e.dataTransfer.files.length > 0) {
+                handleFileUpload(e.dataTransfer.files[0]);
+            }
+        });
+        
+        pdfInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFileUpload(e.target.files[0]);
+            }
+        });
+        
+        async function handleFileUpload(file) {
+            if (!file.name.endsWith('.pdf')) {
+                showError('Please upload a PDF file');
+                return;
+            }
+            
+            // Show progress
+            const progressBar = document.getElementById('upload-progress');
+            progressBar.classList.remove('d-none');
+            progressBar.querySelector('.progress-bar').style.width = '30%';
+            
+            // Update file name display
+            document.getElementById('file-name').textContent = file.name;
+            
+            const formData = new FormData();
+            formData.append('pdfFile', file);
+            
+            try {
+                progressBar.querySelector('.progress-bar').style.width = '60%';
+                
+                const response = await fetch('/Home/UploadPdf', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                progressBar.querySelector('.progress-bar').style.width = '100%';
+                
+                if (result.success) {
+                    // Update header info
+                    if (result.header) {
+                        document.getElementById('projectName').value = result.header.projectName || '';
+                        document.getElementById('pdfDateTime').value = result.header.pdfDateTime || '';
+                        document.getElementById('assemblyPlace').value = result.header.assemblyPlace || '';
+                        document.getElementById('totalPages').value = result.header.totalPages || '';
+                    }
+                    
+                    // Update profiles grid
+                    updateProfilesGrid(result.profiles);
+                    
+                    // Update accessories & hardware grid
+                    updateAccessoriesGrid(result.accessories);
+                    
+                    // Load PDF preview
+                    document.getElementById('pdf-placeholder')?.remove();
+                    document.getElementById('pdf-canvas').style.display = 'block';
+                    pdfViewer.load(result.pdfUrl);
+                    
+                    // Enable confirm button
+                    confirmBtn.disabled = false;
+                    
+                    // Show warnings if any
+                    if (result.warnings && result.warnings.length > 0) {
+                        console.warn('Parse warnings:', result.warnings);
+                    }
+                    
+                    // Add log entry
+                    let hwMsg = result.hardwareCount > 0 ? `, ${result.hardwareCount} hardware items` : '';
+                    let accOnly = result.accessories.length - (result.hardwareCount || 0);
+                    addLogEntry({
+                        timestamp: new Date().toISOString(),
+                        level: 'Success',
+                        message: `PDF uploaded successfully. Found ${result.profiles.length} profiles, ${accOnly} accessories${hwMsg}.`
+                    });
+                } else {
+                    showError(result.message);
+                }
+            } catch (error) {
+                showError('Upload failed: ' + error.message);
+            } finally {
+                setTimeout(() => {
+                    progressBar.classList.add('d-none');
+                    progressBar.querySelector('.progress-bar').style.width = '0%';
+                }, 1000);
+            }
+        }
+        
+        function updateProfilesGrid(profiles) {
+            const tbody = document.getElementById('profiles-tbody');
+            tbody.innerHTML = '';
+            
+            if (!profiles || profiles.length === 0) {
+                tbody.innerHTML = `
+                    <tr id="no-data-row">
+                        <td colspan="8" class="text-center text-muted py-4">
+                            <i class="bi bi-inbox me-2"></i>No profiles found in PDF
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            profiles.forEach(profile => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><input type="checkbox" class="profile-checkbox" value="${profile.id}" checked></td>
+                    <td>${profile.refNumber}</td>
+                    <td>${profile.amount}</td>
+                    <td>${profile.finish1 || ''}</td>
+                    <td>${profile.shade1 || ''}</td>
+                    <td>${profile.finish2 || ''}</td>
+                    <td>${profile.shade2 || ''}</td>
+                    <td title="${profile.rawColour}">${profile.description || ''}</td>
+                `;
+                tbody.appendChild(row);
+            });
+            
+            // Update selected count
+            updateSelectedCount();
+            
+            // Re-attach event listeners
+            document.querySelectorAll('.profile-checkbox').forEach(cb => {
+                cb.addEventListener('change', updateSelectedCount);
+            });
+        }
+        
+        function updateAccessoriesGrid(accessories) {
+            const tbody = document.getElementById('accessories-tbody');
+            tbody.innerHTML = '';
+            
+            if (!accessories || accessories.length === 0) {
+                tbody.innerHTML = `
+                    <tr id="no-acc-data-row">
+                        <td colspan="6" class="text-center text-muted py-4">
+                            <i class="bi bi-inbox me-2"></i>No accessories or hardware found in PDF
+                        </td>
+                    </tr>
+                `;
+                document.getElementById('accessories-count').textContent = '0 items';
+                return;
+            }
+            
+            accessories.forEach(acc => {
+                const row = document.createElement('tr');
+                const sourceClass = acc.source === 'Hardware' ? 'text-info' : 'text-secondary';
+                const sourceBadge = acc.source === 'Hardware' 
+                    ? '<span class="badge bg-info bg-opacity-75">HW</span>' 
+                    : '<span class="badge bg-secondary bg-opacity-50">ACC</span>';
+                row.innerHTML = `
+                    <td><input type="checkbox" class="accessory-checkbox" value="${acc.id}" checked></td>
+                    <td>${sourceBadge}</td>
+                    <td>${acc.refNumber}</td>
+                    <td>${acc.amount}</td>
+                    <td>${acc.finish || ''}</td>
+                    <td>${acc.description || ''}</td>
+                `;
+                tbody.appendChild(row);
+            });
+            
+            const hwCount = accessories.filter(a => a.source === 'Hardware').length;
+            const accCount = accessories.length - hwCount;
+            let countText = `${accessories.length} items`;
+            if (hwCount > 0) {
+                countText = `${accCount} acc + ${hwCount} hw`;
+            }
+            document.getElementById('accessories-count').textContent = countText;
+        }
+        
+        function selectAllAccessories(checked) {
+            document.querySelectorAll('.accessory-checkbox').forEach(cb => {
+                cb.checked = checked;
+            });
+            document.getElementById('select-all-acc-cb').checked = checked;
+        }
+        
+        function showError(message) {
+            const errorEl = document.getElementById('upload-error');
+            errorEl.textContent = message;
+            errorEl.classList.remove('d-none');
+            setTimeout(() => errorEl.classList.add('d-none'), 5000);
+        }
+        
+        // Load existing PDF if available
+        @if (!string.IsNullOrEmpty(Model.UploadedFileName))
+        {
+            <text>
+            document.getElementById('pdf-placeholder')?.remove();
+            document.getElementById('pdf-canvas').style.display = 'block';
+            // PDF URL would need to be passed from the model
+            confirmBtn.disabled = false;
+            </text>
+        }
+        
+        // Excel Price Calculation Module
+        const excelCalc = {
+            profilesLoaded: false,
+            accessoriesLoaded: false,
+            
+            async loadProfilePrices() {
+                const fileInput = document.getElementById('profile-excel');
+                if (!fileInput.files.length) {
+                    alert('Please select a profile prices Excel file');
+                    return;
+                }
+                
+                const formData = new FormData();
+                formData.append('excelFile', fileInput.files[0]);
+                
+                try {
+                    document.getElementById('profile-excel-status').textContent = 'Loading...';
+                    
+                    const response = await fetch('/Home/UploadProfilePrices', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        this.profilesLoaded = true;
+                        document.getElementById('profile-excel-status').innerHTML = 
+                            `<span class="text-success">✓ ${result.profilesCount} profiles loaded</span>`;
+                        this.updateStatus();
+                        addLogEntry({ timestamp: new Date().toISOString(), level: 'Success', 
+                            message: `Loaded ${result.profilesCount} profile prices from ${result.fileName}` });
+                    } else {
+                        document.getElementById('profile-excel-status').innerHTML = 
+                            `<span class="text-danger">✗ ${result.message}</span>`;
+                    }
+                } catch (error) {
+                    document.getElementById('profile-excel-status').innerHTML = 
+                        `<span class="text-danger">✗ Error: ${error.message}</span>`;
+                }
+            },
+            
+            async loadAccessoryPrices() {
+                const fileInput = document.getElementById('accessory-excel');
+                if (!fileInput.files.length) {
+                    alert('Please select an accessory prices Excel file');
+                    return;
+                }
+                
+                const formData = new FormData();
+                formData.append('excelFile', fileInput.files[0]);
+                
+                try {
+                    document.getElementById('accessory-excel-status').textContent = 'Loading...';
+                    
+                    const response = await fetch('/Home/UploadAccessoryPrices', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        this.accessoriesLoaded = true;
+                        document.getElementById('accessory-excel-status').innerHTML = 
+                            `<span class="text-success">✓ ${result.accessoriesCount} accessories loaded</span>`;
+                        this.updateStatus();
+                        addLogEntry({ timestamp: new Date().toISOString(), level: 'Success', 
+                            message: `Loaded ${result.accessoriesCount} accessory prices from ${result.fileName}` });
+                    } else {
+                        document.getElementById('accessory-excel-status').innerHTML = 
+                            `<span class="text-danger">✗ ${result.message}</span>`;
+                    }
+                } catch (error) {
+                    document.getElementById('accessory-excel-status').innerHTML = 
+                        `<span class="text-danger">✗ Error: ${error.message}</span>`;
+                }
+            },
+            
+            updateStatus() {
+                const statusBadge = document.getElementById('excel-status');
+                const calcButton = document.getElementById('btn-calculate-excel');
+                
+                if (this.profilesLoaded || this.accessoriesLoaded) {
+                    statusBadge.className = 'badge bg-success';
+                    statusBadge.textContent = 'Ready';
+                    calcButton.disabled = false;
+                } else {
+                    statusBadge.className = 'badge bg-secondary';
+                    statusBadge.textContent = 'Not Loaded';
+                    calcButton.disabled = true;
+                }
+            },
+            
+            async calculateTotals() {
+                // Get selected profile IDs
+                const selectedProfileIds = [];
+                document.querySelectorAll('.profile-checkbox:checked').forEach(cb => {
+                    selectedProfileIds.push(parseInt(cb.value));
+                });
+                
+                // Get selected accessory/hardware IDs
+                const selectedAccessoryIds = [];
+                document.querySelectorAll('.accessory-checkbox:checked').forEach(cb => {
+                    selectedAccessoryIds.push(parseInt(cb.value));
+                });
+                
+                if (selectedProfileIds.length === 0 && selectedAccessoryIds.length === 0) {
+                    alert('Please select at least one profile or accessory');
+                    return;
+                }
+                
+                const request = {
+                    selectedProfileIds: selectedProfileIds,
+                    selectedAccessoryIds: selectedAccessoryIds,
+                    customWithBreakPrice: parseFloat(document.getElementById('custom-with-break').value) || null,
+                    customWithoutBreakPrice: parseFloat(document.getElementById('custom-without-break').value) || null,
+                    accessoryDiscount: parseFloat(document.getElementById('accessory-discount').value) || null
+                };
+                
+                try {
+                    addLogEntry({ timestamp: new Date().toISOString(), level: 'Info', 
+                        message: `Calculating totals for ${selectedProfileIds.length} profiles...` });
+                    
+                    const response = await fetch('/Home/CalculateTotalsFromExcel', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(request)
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        // Display results
+                        document.getElementById('excel-calculation-result').style.display = 'block';
+                        document.getElementById('excel-profiles-total').textContent = 
+                            `€${result.profilesTotal.toFixed(2)}`;
+                        document.getElementById('excel-accessories-total').textContent = 
+                            `€${result.accessoriesTotal.toFixed(2)}`;
+                        document.getElementById('excel-grand-total').textContent = 
+                            `€${result.grandTotal.toFixed(2)}`;
+                        
+                        // Summary
+                        const summary = result.summary;
+                        let summaryText = `Profiles: ${summary.profilesMatched} matched`;
+                        if (summary.profilesUnmatched > 0) {
+                            summaryText += `, ${summary.profilesUnmatched} not found`;
+                        }
+                        if (summary.accessoriesMatched > 0) {
+                            summaryText += ` | Accessories: ${summary.accessoriesMatched} matched`;
+                        }
+                        if (summary.accessoriesUnmatched > 0) {
+                            summaryText += `, ${summary.accessoriesUnmatched} not found`;
+                        }
+                        if (summary.totalMissing > 0) {
+                            summaryText += ` | ${summary.totalMissing} items need manual price`;
+                        }
+                        document.getElementById('excel-match-summary').textContent = summaryText;
+                        
+                        // Store missing items for quotation generation
+                        window._lastMissingItems = result.missingCalculationItems || [];
+                        
+                        // Show missing items table
+                        const missingSection = document.getElementById('missing-items-section');
+                        const missingTbody = document.getElementById('missing-items-tbody');
+                        missingTbody.innerHTML = '';
+                        
+                        if (result.missingCalculationItems && result.missingCalculationItems.length > 0) {
+                            missingSection.style.display = 'block';
+                            result.missingCalculationItems.forEach(item => {
+                                const catBadge = item.category === 'Hardware' 
+                                    ? '<span class="badge bg-info">HW</span>'
+                                    : item.category === 'Profile'
+                                        ? '<span class="badge bg-primary">Prof</span>'
+                                        : '<span class="badge bg-secondary">Acc</span>';
+                                const row = document.createElement('tr');
+                                row.innerHTML = `
+                                    <td>${catBadge}</td>
+                                    <td><strong>${item.refNumber}</strong></td>
+                                    <td>${item.quantity}</td>
+                                    <td>${item.description}</td>
+                                    <td>${item.finish || ''}</td>
+                                    <td><small class="text-muted">${item.reason}</small></td>
+                                `;
+                                missingTbody.appendChild(row);
+                            });
+                        } else {
+                            missingSection.style.display = 'none';
+                        }
+                        
+                        addLogEntry({ timestamp: new Date().toISOString(), level: 'Success', 
+                            message: `Calculation complete. Total: €${result.grandTotal.toFixed(2)}` });
+                        
+                        // Show warnings for unmatched items
+                        if (result.unmatchedProfiles.length > 0) {
+                            addLogEntry({ timestamp: new Date().toISOString(), level: 'Warning', 
+                                message: `Profiles not found in price list: ${result.unmatchedProfiles.join(', ')}` });
+                        }
+                        if (result.unmatchedAccessories.length > 0) {
+                            addLogEntry({ timestamp: new Date().toISOString(), level: 'Warning', 
+                                message: `Accessories/Hardware not found in price list: ${result.unmatchedAccessories.join(', ')}` });
+                        }
+                    } else {
+                        addLogEntry({ timestamp: new Date().toISOString(), level: 'Error', 
+                            message: result.message });
+                    }
+                } catch (error) {
+                    addLogEntry({ timestamp: new Date().toISOString(), level: 'Error', 
+                        message: `Calculation failed: ${error.message}` });
+                }
+            },
+            
+            // Check initial status on page load
+            async checkStatus() {
+                try {
+                    const response = await fetch('/Home/GetExcelPriceStatus');
+                    const status = await response.json();
+                    
+                    this.profilesLoaded = status.profilePricesLoaded;
+                    this.accessoriesLoaded = status.accessoryPricesLoaded;
+                    
+                    if (status.profilePricesLoaded) {
+                        document.getElementById('profile-excel-status').innerHTML = 
+                            `<span class="text-success">✓ ${status.profilePricesCount} profiles loaded</span>`;
+                    }
+                    if (status.accessoryPricesLoaded) {
+                        document.getElementById('accessory-excel-status').innerHTML = 
+                            `<span class="text-success">✓ ${status.accessoryPricesCount} accessories loaded</span>`;
+                    }
+                    
+                    this.updateStatus();
+                } catch (error) {
+                    console.error('Failed to check Excel status:', error);
+                }
+            }
+        };
+        
+        // Check Excel status on page load
+        excelCalc.checkStatus();
+    </script>
+}

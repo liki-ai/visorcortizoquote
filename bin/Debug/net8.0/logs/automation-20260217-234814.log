@@ -1,0 +1,351 @@
+[2026-02-17 23:48:14.810] [INFO   ] Initializing browser automation...
+[2026-02-17 23:48:17.197] [INFO   ] Navigating to Cortizo Center login page...
+[2026-02-17 23:48:17.199] [INFO   ] Target URL: https://cortizocenter.com/Login.aspx
+[2026-02-17 23:48:18.902] [INFO   ] [PAGE STATE - After loading login page]
+[2026-02-17 23:48:18.902] [INFO   ]   URL: https://cortizocenter.com/Login.aspx
+[2026-02-17 23:48:18.902] [INFO   ]   Title: CORTIZO CENTER
+[2026-02-17 23:48:18.976] [INFO   ]   Login Form: Found (Visible)
+[2026-02-17 23:48:18.983] [INFO   ]   Quotations Link: Not Found
+[2026-02-17 23:48:18.998] [INFO   ]   Profiles Grid: Not Found
+[2026-02-17 23:48:19.005] [INFO   ]   General Color Finish 1: Not Found
+[2026-02-17 23:48:19.009] [INFO   ]   First Reference Input: Not Found
+[2026-02-17 23:48:19.011] [INFO   ] Logging in...
+[2026-02-17 23:48:19.018] [INFO   ] [LOGIN] Starting login process...
+[2026-02-17 23:48:19.018] [INFO   ] [LOGIN] Waiting for login form...
+[2026-02-17 23:48:19.050] [INFO   ] [LOGIN] Filling username: salesadria
+[2026-02-17 23:48:19.196] [INFO   ] [LOGIN] Filling password: ********
+[2026-02-17 23:48:19.323] [INFO   ] [LOGIN] Looking for login button...
+[2026-02-17 23:48:19.343] [INFO   ] [LOGIN] Found button with selector: text=ACCEDER
+[2026-02-17 23:48:20.380] [INFO   ] [LOGIN] Clicked login button
+[2026-02-17 23:48:22.391] [INFO   ] [LOGIN] Current URL after login attempt: https://cortizocenter.com/Inicio.aspx
+[2026-02-17 23:48:22.505] [SUCCESS] Login successful!
+[2026-02-17 23:48:22.577] [INFO   ] [PAGE STATE - After login]
+[2026-02-17 23:48:22.577] [INFO   ]   URL: https://cortizocenter.com/Inicio.aspx
+[2026-02-17 23:48:22.577] [INFO   ]   Title: CORTIZO CENTER
+[2026-02-17 23:48:22.640] [INFO   ]   Login Form: Not Found
+[2026-02-17 23:48:22.703] [INFO   ]   Quotations Link: Found (Visible)
+[2026-02-17 23:48:22.715] [INFO   ]   Profiles Grid: Not Found
+[2026-02-17 23:48:22.720] [INFO   ]   General Color Finish 1: Not Found
+[2026-02-17 23:48:22.724] [INFO   ]   First Reference Input: Not Found
+[2026-02-17 23:48:22.725] [INFO   ] Navigating to Quotations / Online Orders...
+[2026-02-17 23:48:22.736] [INFO   ] [NAVIGATE] Starting navigation to Quotations...
+[2026-02-17 23:48:22.736] [INFO   ] [NAVIGATE] Current URL: https://cortizocenter.com/Inicio.aspx
+[2026-02-17 23:48:22.736] [INFO   ] [NAVIGATE] Trying selector: #ctl00_ico7
+[2026-02-17 23:48:22.795] [INFO   ] [NAVIGATE] Found element! Visible: True
+[2026-02-17 23:48:34.280] [INFO   ] [NAVIGATE] Clicked element, waiting for navigation...
+[2026-02-17 23:48:38.763] [INFO   ] [NAVIGATE] Navigation complete. New URL: https://ccenter.cortizo.mobi/Valoraciones.aspx?Id=CgAAAB-LCAAAAAAABAAzZDBksARiAwYAwS14mQoAAAA=&Lg=BAAAAB-LCAAAAAAABABzZfBjAACYFXTjBAAAAA==
+[2026-02-17 23:48:38.769] [INFO   ] [PAGE STATE - After navigating to quotations]
+[2026-02-17 23:48:38.769] [INFO   ]   URL: https://ccenter.cortizo.mobi/Valoraciones.aspx?Id=CgAAAB-LCAAAAAAABAAzZDBksARiAwYAwS14mQoAAAA=&Lg=BAAAAB-LCAAAAAAABABzZfBjAACYFXTjBAAAAA==
+[2026-02-17 23:48:38.769] [INFO   ]   Title: CORTIZO CENTER
+[2026-02-17 23:48:38.878] [INFO   ]   Login Form: Found (Hidden)
+[2026-02-17 23:48:38.945] [INFO   ]   Quotations Link: Found (Visible)
+[2026-02-17 23:48:39.002] [INFO   ]   Profiles Grid: Found (Visible)
+[2026-02-17 23:48:39.054] [INFO   ]   General Color Finish 1: Found (Visible)
+[2026-02-17 23:48:39.103] [INFO   ]   First Reference Input: Found (Visible)
+[2026-02-17 23:48:39.110] [INFO   ] [AVAILABLE SELECTORS in body]
+[2026-02-17 23:48:39.275] [INFO   ]   Found 124 select elements:
+[2026-02-17 23:48:39.392] [INFO   ]     - id='ctl00_ContentPlaceHolderCortizoCenter_Lst_Valoraciones' name='ctl00$ContentPlaceHolderCortizoCenter$Lst_Valoraciones' visible=True
+[2026-02-17 23:48:39.458] [INFO   ]     - id='ctl00_ContentPlaceHolderCortizoCenter_LstMicraje' name='ctl00$ContentPlaceHolderCortizoCenter$LstMicraje' visible=True
+[2026-02-17 23:48:39.569] [INFO   ]     - id='ctl00_ContentPlaceHolderCortizoCenter_ddlIdioma' name='ctl00$ContentPlaceHolderCortizoCenter$ddlIdioma' visible=True
+[2026-02-17 23:48:39.629] [INFO   ]     - id='ctl00_ContentPlaceHolderCortizoCenter_CbLugEnvioPerfil' name='ctl00$ContentPlaceHolderCortizoCenter$CbLugEnvioPerfil' visible=True
+[2026-02-17 23:48:39.688] [INFO   ]     - id='ctl00_ContentPlaceHolderCortizoCenter_CbLugEnvioAcc' name='ctl00$ContentPlaceHolderCortizoCenter$CbLugEnvioAcc' visible=True
+[2026-02-17 23:48:39.748] [INFO   ]     - id='ctl00_ContentPlaceHolderCortizoCenter_CbLugEnvioPvc' name='ctl00$ContentPlaceHolderCortizoCenter$CbLugEnvioPvc' visible=True
+[2026-02-17 23:48:39.807] [INFO   ]     - id='ddlAcabado_1_ColorGeneral' name='' visible=True
+[2026-02-17 23:48:39.870] [INFO   ]     - id='ddlMatiz_1_ColorGeneral' name='' visible=True
+[2026-02-17 23:48:39.943] [INFO   ]     - id='ddlAcabado_2_ColorGeneral' name='' visible=True
+[2026-02-17 23:48:39.993] [INFO   ]     - id='ddlMatiz_2_ColorGeneral' name='' visible=True
+[2026-02-17 23:48:40.039] [INFO   ]     - id='ddlAcabado1_0001' name='' visible=True
+[2026-02-17 23:48:40.088] [INFO   ]     - id='ddlMatiz1_0001' name='' visible=True
+[2026-02-17 23:48:40.135] [INFO   ]     - id='ddlAcabado2_0001' name='' visible=True
+[2026-02-17 23:48:40.181] [INFO   ]     - id='ddlMatiz2_0001' name='' visible=True
+[2026-02-17 23:48:40.225] [INFO   ]     - id='ddlBase_0001' name='' visible=True
+[2026-02-17 23:48:40.289] [INFO   ]     - id='ddlAcabado1_0002' name='' visible=True
+[2026-02-17 23:48:40.343] [INFO   ]     - id='ddlMatiz1_0002' name='' visible=True
+[2026-02-17 23:48:40.391] [INFO   ]     - id='ddlAcabado2_0002' name='' visible=True
+[2026-02-17 23:48:40.452] [INFO   ]     - id='ddlMatiz2_0002' name='' visible=True
+[2026-02-17 23:48:40.513] [INFO   ]     - id='ddlBase_0002' name='' visible=True
+[2026-02-17 23:48:40.748] [INFO   ]   Found 190 text input elements:
+[2026-02-17 23:48:40.862] [INFO   ]     - id='ctl00_ContentPlaceHolderCortizoCenter_txtPrecioConRotura' name='ctl00$ContentPlaceHolderCortizoCenter$txtPrecioConRotura' visible=True
+[2026-02-17 23:48:40.919] [INFO   ]     - id='ctl00_ContentPlaceHolderCortizoCenter_txtPrecioSinRotura' name='ctl00$ContentPlaceHolderCortizoCenter$txtPrecioSinRotura' visible=True
+[2026-02-17 23:48:40.979] [INFO   ]     - id='ctl00_ContentPlaceHolderCortizoCenter_txtPrecioLacado' name='ctl00$ContentPlaceHolderCortizoCenter$txtPrecioLacado' visible=True
+[2026-02-17 23:48:41.037] [INFO   ]     - id='ctl00_ContentPlaceHolderCortizoCenter_txtPrecioAnodizado' name='ctl00$ContentPlaceHolderCortizoCenter$txtPrecioAnodizado' visible=True
+[2026-02-17 23:48:41.098] [INFO   ]     - id='ctl00_ContentPlaceHolderCortizoCenter_txtPVCDescuentoPVC' name='ctl00$ContentPlaceHolderCortizoCenter$txtPVCDescuentoPVC' visible=True
+[2026-02-17 23:48:41.175] [INFO   ]     - id='ctl00_ContentPlaceHolderCortizoCenter_txtPVCDescuentoAluminio' name='ctl00$ContentPlaceHolderCortizoCenter$txtPVCDescuentoAluminio' visible=True
+[2026-02-17 23:48:41.230] [INFO   ]     - id='ctl00_ContentPlaceHolderCortizoCenter_txtPVCDescuentoAcero' name='ctl00$ContentPlaceHolderCortizoCenter$txtPVCDescuentoAcero' visible=True
+[2026-02-17 23:48:41.286] [INFO   ]     - id='ctl00_ContentPlaceHolderCortizoCenter_txtDescuentoAccesorios' name='ctl00$ContentPlaceHolderCortizoCenter$txtDescuentoAccesorios' visible=True
+[2026-02-17 23:48:41.342] [INFO   ]     - id='ctl00_ContentPlaceHolderCortizoCenter_NumValoracion' name='ctl00$ContentPlaceHolderCortizoCenter$NumValoracion' visible=False
+[2026-02-17 23:48:41.407] [INFO   ]     - id='ctl00_ContentPlaceHolderCortizoCenter_txtCIF' name='ctl00$ContentPlaceHolderCortizoCenter$txtCIF' visible=True
+[2026-02-17 23:48:41.457] [INFO   ]     - id='ctl00_ContentPlaceHolderCortizoCenter_txtCodigoCliente' name='ctl00$ContentPlaceHolderCortizoCenter$txtCodigoCliente' visible=True
+[2026-02-17 23:48:41.505] [INFO   ]     - id='ctl00_ContentPlaceHolderCortizoCenter_TxtCodPedCliente' name='ctl00$ContentPlaceHolderCortizoCenter$TxtCodPedCliente' visible=True
+[2026-02-17 23:48:41.551] [INFO   ]     - id='ctl00_ContentPlaceHolderCortizoCenter_TxtUsuario' name='ctl00$ContentPlaceHolderCortizoCenter$TxtUsuario' visible=False
+[2026-02-17 23:48:41.605] [INFO   ]     - id='ctl00_ContentPlaceHolderCortizoCenter_ControlLogin_UsernameTB' name='ctl00$ContentPlaceHolderCortizoCenter$ControlLogin$UsernameTB' visible=False
+[2026-02-17 23:48:41.660] [INFO   ]     - id='txtReferencia_0001' name='' visible=True
+[2026-02-17 23:48:41.722] [INFO   ]     - id='txtCantidad_0001' name='' visible=True
+[2026-02-17 23:48:41.766] [INFO   ]     - id='txtDescripcion_0001' name='' visible=True
+[2026-02-17 23:48:41.810] [INFO   ]     - id='txtPrecio_0001' name='' visible=True
+[2026-02-17 23:48:41.865] [INFO   ]     - id='txtLongitud_0001' name='' visible=True
+[2026-02-17 23:48:41.915] [INFO   ]     - id='txtImporte_0001' name='' visible=True
+[2026-02-17 23:48:41.956] [INFO   ]   Found 24 button/link elements:
+[2026-02-17 23:48:42.065] [INFO   ]     - id='' text='DECLINE' visible=False
+[2026-02-17 23:48:42.169] [INFO   ]     - id='' text='ACCEPT' visible=False
+[2026-02-17 23:48:42.272] [INFO   ]     - id='ctl00_ico1' text='' visible=True
+[2026-02-17 23:48:42.372] [INFO   ]     - id='ctl00_ico2' text='' visible=True
+[2026-02-17 23:48:42.484] [INFO   ]     - id='ctl00_ico3' text='' visible=True
+[2026-02-17 23:48:42.560] [INFO   ]     - id='ctl00_ico4' text='' visible=True
+[2026-02-17 23:48:42.643] [INFO   ]     - id='ctl00_ico5' text='' visible=True
+[2026-02-17 23:48:42.723] [INFO   ]     - id='ctl00_ico6' text='' visible=True
+[2026-02-17 23:48:42.801] [INFO   ]     - id='ctl00_ico7' text='' visible=True
+[2026-02-17 23:48:42.879] [INFO   ]     - id='ctl00_ico8' text='' visible=True
+[2026-02-17 23:48:42.971] [INFO   ]     - id='ctl00_ico9' text='' visible=True
+[2026-02-17 23:48:43.056] [INFO   ]     - id='ctl00_ico10' text='' visible=True
+[2026-02-17 23:48:43.129] [INFO   ]     - id='ctl00_ico11' text='' visible=False
+[2026-02-17 23:48:43.204] [INFO   ]     - id='' text='ES|' visible=True
+[2026-02-17 23:48:43.290] [INFO   ]     - id='' text='EN|' visible=True
+[2026-02-17 23:48:43.372] [INFO   ]     - id='' text='PT|' visible=True
+[2026-02-17 23:48:43.453] [INFO   ]     - id='' text='PL|' visible=True
+[2026-02-17 23:48:43.542] [INFO   ]     - id='' text='SK|' visible=True
+[2026-02-17 23:48:43.633] [INFO   ]     - id='' text='CZ|' visible=True
+[2026-02-17 23:48:43.697] [INFO   ]     - id='' text='FR|' visible=True
+[2026-02-17 23:48:43.698] [INFO   ] Creating new valuation...
+[2026-02-17 23:48:45.009] [INFO   ] [PAGE STATE - After creating new valuation]
+[2026-02-17 23:48:45.009] [INFO   ]   URL: https://ccenter.cortizo.mobi/Valoraciones.aspx?Id=CgAAAB-LCAAAAAAABAAzZDBksARiAwYAwS14mQoAAAA=&Lg=BAAAAB-LCAAAAAAABABzZfBjAACYFXTjBAAAAA==
+[2026-02-17 23:48:45.009] [INFO   ]   Title: CORTIZO CENTER
+[2026-02-17 23:48:45.053] [INFO   ]   Login Form: Found (Hidden)
+[2026-02-17 23:48:45.102] [INFO   ]   Quotations Link: Found (Visible)
+[2026-02-17 23:48:45.152] [INFO   ]   Profiles Grid: Found (Visible)
+[2026-02-17 23:48:45.199] [INFO   ]   General Color Finish 1: Found (Visible)
+[2026-02-17 23:48:45.241] [INFO   ]   First Reference Input: Found (Visible)
+[2026-02-17 23:48:45.242] [INFO   ] Setting header fields...
+[2026-02-17 23:48:45.244] [INFO   ] [HEADER] Setting header fields...
+[2026-02-17 23:48:45.244] [INFO   ] [HEADER] Setting Microns to: 15
+[2026-02-17 23:48:45.247] [INFO   ] [SELECT] Trying selector: #ctl00_ContentPlaceHolderCortizoCenter_LstMicraje, select[name*='Micraje'] with value: 15
+[2026-02-17 23:48:45.301] [INFO   ] [SELECT] Found element, visible: True
+[2026-02-17 23:48:45.455] [INFO   ] [SELECT] Options (3 total): 15='15', 20='20', 25='25'
+[2026-02-17 23:48:45.631] [INFO   ] [SELECT] Successfully set by value: 15
+[2026-02-17 23:48:45.631] [INFO   ] [HEADER] Setting Language to: ENGLISH
+[2026-02-17 23:48:45.631] [INFO   ] [SELECT] Trying selector: #ctl00_ContentPlaceHolderCortizoCenter_ddlIdioma, select[name*='Idioma'] with value: ENGLISH
+[2026-02-17 23:48:45.689] [INFO   ] [SELECT] Found element, visible: True
+[2026-02-17 23:48:46.404] [INFO   ] [SELECT] Options (12 total): es='ESPAÑOL', en='ENGLISH', pl='POLSKI', cz='ČESKÉ', sk='SLOVENSKO', fr='FRANÇAIS', ro='ROMANA', hu='HUNGARIAN', hu='HRVATSKA', pt='PORTUGUÉS'
+[2026-02-17 23:49:16.553] [INFO   ] [SELECT] Set by value failed: Timeout 30000ms exceeded.
+Call log:
+  -   - attempting select option action
+  -     2 × waiting for element to be visible and enabled
+  -       - did not find some options
+  -     - retrying select option action
+  -     - waiting 20ms
+  -     2 × waiting for element to be visible and enabled
+  -       - did not find some options
+  -     - retrying select option action
+  -       - waiting 100ms
+  -     56 × waiting for element to be visible and enabled
+  -        - did not find some options
+  -      - retrying select option action
+  -        - waiting 500ms, trying by label...
+[2026-02-17 23:49:16.709] [INFO   ] [SELECT] Successfully set by label: ENGLISH
+[2026-02-17 23:49:16.710] [INFO   ] [HEADER] Setting Finish 1: 90 -> value=90
+[2026-02-17 23:49:16.710] [INFO   ] [SELECT] Trying selector: #ddlAcabado_1_ColorGeneral with value: 90
+[2026-02-17 23:49:16.744] [INFO   ] [SELECT] Found element, visible: True
+[2026-02-17 23:49:17.174] [INFO   ] [SELECT] Options (37 total): ='', 0='PVC', 1='SILVER ANODISED (1)', 10='BLACK ANODISED (10)', 16='ACIER ANODISED (16)', 17='INOX ANODISED (17)', 2='GOLD ANODISED (2)', 21='CHAMPAGNE ANODISED (21)', 22='IVORY ANODISED (22)', 3='BRONZE ANODISED (3)'
+[2026-02-17 23:49:17.328] [INFO   ] [SELECT] Successfully set by value: 90
+[2026-02-17 23:49:17.842] [INFO   ] [HEADER] Setting Shade 1: P1019M
+[2026-02-17 23:49:17.842] [INFO   ] [SELECT] Trying selector: #ddlMatiz_1_ColorGeneral with value: P1019M
+[2026-02-17 23:49:17.870] [INFO   ] [SELECT] Found element, visible: True
+[2026-02-17 23:49:18.420] [INFO   ] [SELECT] Options (133 total): ='', 1013CM='1013CM', 5011ST='5011ST', 5014CM='5014CM', 7005CM='7005CM', 7011CM='7011CM', 7012CM='7012CM', 7015CM='7015CM', 7015ST='7015ST', 7021CM='7021CM'
+[2026-02-17 23:49:18.583] [INFO   ] [SELECT] Successfully set by value: P1019M
+[2026-02-17 23:49:18.583] [INFO   ] [HEADER] Setting Finish 2: 90 -> value=90
+[2026-02-17 23:49:18.583] [INFO   ] [SELECT] Trying selector: #ddlAcabado_2_ColorGeneral with value: 90
+[2026-02-17 23:49:18.632] [INFO   ] [SELECT] Found element, visible: True
+[2026-02-17 23:49:19.075] [INFO   ] [SELECT] Options (37 total): ='', 0='PVC', 1='SILVER ANODISED (1)', 10='BLACK ANODISED (10)', 16='ACIER ANODISED (16)', 17='INOX ANODISED (17)', 2='GOLD ANODISED (2)', 21='CHAMPAGNE ANODISED (21)', 22='IVORY ANODISED (22)', 3='BRONZE ANODISED (3)'
+[2026-02-17 23:49:19.267] [INFO   ] [SELECT] Successfully set by value: 90
+[2026-02-17 23:49:19.771] [INFO   ] [HEADER] Setting Shade 2: P1019M
+[2026-02-17 23:49:19.771] [INFO   ] [SELECT] Trying selector: #ddlMatiz_2_ColorGeneral with value: P1019M
+[2026-02-17 23:49:19.813] [INFO   ] [SELECT] Found element, visible: True
+[2026-02-17 23:49:20.346] [INFO   ] [SELECT] Options (133 total): ='', 1013CM='1013CM', 5011ST='5011ST', 5014CM='5014CM', 7005CM='7005CM', 7011CM='7011CM', 7012CM='7012CM', 7015CM='7015CM', 7015ST='7015ST', 7021CM='7021CM'
+[2026-02-17 23:49:20.506] [INFO   ] [SELECT] Successfully set by value: P1019M
+[2026-02-17 23:49:20.506] [INFO   ] [HEADER] Header fields set complete
+[2026-02-17 23:49:20.509] [INFO   ] [PAGE STATE - After setting header fields]
+[2026-02-17 23:49:20.509] [INFO   ]   URL: https://ccenter.cortizo.mobi/Valoraciones.aspx?Id=CgAAAB-LCAAAAAAABAAzZDBksARiAwYAwS14mQoAAAA=&Lg=BAAAAB-LCAAAAAAABABzZfBjAACYFXTjBAAAAA==
+[2026-02-17 23:49:20.509] [INFO   ]   Title: CORTIZO CENTER
+[2026-02-17 23:49:20.567] [INFO   ]   Login Form: Found (Hidden)
+[2026-02-17 23:49:20.610] [INFO   ]   Quotations Link: Found (Visible)
+[2026-02-17 23:49:20.655] [INFO   ]   Profiles Grid: Found (Visible)
+[2026-02-17 23:49:20.694] [INFO   ]   General Color Finish 1: Found (Visible)
+[2026-02-17 23:49:20.737] [INFO   ]   First Reference Input: Found (Visible)
+[2026-02-17 23:49:20.738] [INFO   ] Setting customized prices...
+[2026-02-17 23:49:20.739] [INFO   ] [PRICES] Setting customized prices...
+[2026-02-17 23:49:20.739] [INFO   ] [PRICES] Setting WITH BREAK: 7.56
+[2026-02-17 23:49:20.933] [INFO   ] [PRICES] Setting WITHOUT BREAK: 5.16
+[2026-02-17 23:49:21.108] [INFO   ] [PRICES] Setting PVC: 15
+[2026-02-17 23:49:21.287] [INFO   ] [PRICES] Setting ALUMINIUM: 10
+[2026-02-17 23:49:21.476] [INFO   ] [PRICES] Setting ACCESSORIES DISCOUNT: 10
+[2026-02-17 23:49:21.699] [INFO   ] [PRICES] Customized prices set complete
+[2026-02-17 23:49:21.702] [INFO   ] [PAGE STATE - After setting customized prices]
+[2026-02-17 23:49:21.702] [INFO   ]   URL: https://ccenter.cortizo.mobi/Valoraciones.aspx?Id=CgAAAB-LCAAAAAAABAAzZDBksARiAwYAwS14mQoAAAA=&Lg=BAAAAB-LCAAAAAAABABzZfBjAACYFXTjBAAAAA==
+[2026-02-17 23:49:21.702] [INFO   ]   Title: CORTIZO CENTER
+[2026-02-17 23:49:21.747] [INFO   ]   Login Form: Found (Hidden)
+[2026-02-17 23:49:21.792] [INFO   ]   Quotations Link: Found (Visible)
+[2026-02-17 23:49:21.834] [INFO   ]   Profiles Grid: Found (Visible)
+[2026-02-17 23:49:21.886] [INFO   ]   General Color Finish 1: Found (Visible)
+[2026-02-17 23:49:21.925] [INFO   ]   First Reference Input: Found (Visible)
+[2026-02-17 23:49:21.926] [INFO   ] Ensuring 26 rows are available in the grid...
+[2026-02-17 23:49:23.589] [INFO   ] Filling 26 profile items (fast batch mode)...
+[2026-02-17 23:49:23.594] [INFO   ] [FILL] Starting fill for 26 profiles...
+[2026-02-17 23:49:23.644] [INFO   ] [FILL] Header values - Finish1: 90, Shade1: , Finish2: 90, Shade2: 
+[2026-02-17 23:49:23.644] [INFO   ] [ROW 0001] Processing: REF=2015, AMT=34
+[2026-02-17 23:49:25.540] [WARNING] [ROW 0001] Amount not calculated, retrying with longer wait...
+[2026-02-17 23:49:27.545] [SUCCESS] [ROW 0001] Amount calculated on second retry: 559,13 €
+[2026-02-17 23:49:27.546] [INFO   ] [ROW 0002] Processing: REF=2019, AMT=278
+[2026-02-17 23:49:29.482] [WARNING] [ROW 0002] Amount not calculated, retrying with longer wait...
+[2026-02-17 23:49:31.378] [ERROR  ] [ROW 0002] Amount still not calculated after retries
+[2026-02-17 23:49:31.378] [INFO   ] [ROW 0003] Processing: REF=2030, AMT=8
+[2026-02-17 23:49:33.632] [WARNING] [ROW 0003] Amount not calculated, retrying with longer wait...
+[2026-02-17 23:49:35.594] [ERROR  ] [ROW 0003] Amount still not calculated after retries
+[2026-02-17 23:49:35.595] [INFO   ] [ROW 0004] Processing: REF=3847, AMT=24
+[2026-02-17 23:49:38.040] [WARNING] [ROW 0004] Amount not calculated, retrying with longer wait...
+[2026-02-17 23:49:40.219] [ERROR  ] [ROW 0004] Amount still not calculated after retries
+[2026-02-17 23:49:40.220] [INFO   ] [ROW 0005] Processing: REF=4503, AMT=24
+[2026-02-17 23:49:42.496] [WARNING] [ROW 0005] Amount not calculated, retrying with longer wait...
+[2026-02-17 23:49:44.459] [ERROR  ] [ROW 0005] Amount still not calculated after retries
+[2026-02-17 23:49:44.460] [INFO   ] [ROW 0006] Processing: REF=4601, AMT=35
+[2026-02-17 23:49:46.811] [WARNING] [ROW 0006] Amount not calculated, retrying with longer wait...
+[2026-02-17 23:49:48.925] [ERROR  ] [ROW 0006] Amount still not calculated after retries
+[2026-02-17 23:49:48.926] [INFO   ] [ROW 0007] Processing: REF=4602, AMT=30
+[2026-02-17 23:49:51.674] [WARNING] [ROW 0007] Amount not calculated, retrying with longer wait...
+[2026-02-17 23:49:53.757] [SUCCESS] [ROW 0007] Amount calculated on second retry: 4962,75 €
+[2026-02-17 23:49:53.758] [INFO   ] [ROW 0008] Processing: REF=4605, AMT=13
+[2026-02-17 23:49:56.380] [WARNING] [ROW 0008] Amount not calculated, retrying with longer wait...
+[2026-02-17 23:49:58.433] [ERROR  ] [ROW 0008] Amount still not calculated after retries
+[2026-02-17 23:49:58.433] [INFO   ] [ROW 0009] Processing: REF=4606, AMT=13
+[2026-02-17 23:50:00.935] [WARNING] [ROW 0009] Amount not calculated, retrying with longer wait...
+[2026-02-17 23:50:03.116] [ERROR  ] [ROW 0009] Amount still not calculated after retries
+[2026-02-17 23:50:03.117] [INFO   ] [ROW 0010] Processing: REF=4607, AMT=25
+[2026-02-17 23:50:05.756] [WARNING] [ROW 0010] Amount not calculated, retrying with longer wait...
+[2026-02-17 23:50:08.241] [ERROR  ] [ROW 0010] Amount still not calculated after retries
+[2026-02-17 23:50:08.242] [INFO   ] [ROW 0011] Processing: REF=4610, AMT=35
+[2026-02-17 23:50:11.406] [WARNING] [ROW 0011] Amount not calculated, retrying with longer wait...
+[2026-02-17 23:50:13.711] [ERROR  ] [ROW 0011] Amount still not calculated after retries
+[2026-02-17 23:50:13.712] [INFO   ] [ROW 0012] Processing: REF=4615, AMT=3
+[2026-02-17 23:50:16.397] [WARNING] [ROW 0012] Amount not calculated, retrying with longer wait...
+[2026-02-17 23:50:18.955] [ERROR  ] [ROW 0012] Amount still not calculated after retries
+[2026-02-17 23:50:18.956] [INFO   ] [ROW 0013] Processing: REF=4662, AMT=10
+[2026-02-17 23:50:21.927] [WARNING] [ROW 0013] Amount not calculated, retrying with longer wait...
+[2026-02-17 23:50:24.200] [ERROR  ] [ROW 0013] Amount still not calculated after retries
+[2026-02-17 23:50:24.200] [INFO   ] [ROW 0014] Processing: REF=4665, AMT=10
+[2026-02-17 23:50:27.713] [WARNING] [ROW 0014] Amount not calculated, retrying with longer wait...
+[2026-02-17 23:50:30.472] [ERROR  ] [ROW 0014] Amount still not calculated after retries
+[2026-02-17 23:50:30.472] [INFO   ] [ROW 0015] Processing: REF=4681, AMT=13
+[2026-02-17 23:50:34.266] [WARNING] [ROW 0015] Amount not calculated, retrying with longer wait...
+[2026-02-17 23:50:36.749] [ERROR  ] [ROW 0015] Amount still not calculated after retries
+[2026-02-17 23:50:36.750] [INFO   ] [ROW 0016] Processing: REF=7251, AMT=17
+[2026-02-17 23:50:41.759] [WARNING] [ROW 0016] Amount not calculated, retrying with longer wait...
+[2026-02-17 23:50:44.862] [SUCCESS] [ROW 0016] Amount calculated on second retry: 59,67 €
+[2026-02-17 23:50:44.862] [INFO   ] [ROW 0017] Processing: REF=7920, AMT=103
+[2026-02-17 23:50:49.616] [WARNING] [ROW 0017] Amount not calculated, retrying with longer wait...
+[2026-02-17 23:50:53.273] [ERROR  ] [ROW 0017] Amount still not calculated after retries
+[2026-02-17 23:50:53.274] [INFO   ] [ROW 0018] Processing: REF=7926, AMT=16
+[2026-02-17 23:50:58.145] [WARNING] [ROW 0018] Amount not calculated, retrying with longer wait...
+[2026-02-17 23:51:01.200] [ERROR  ] [ROW 0018] Amount still not calculated after retries
+[2026-02-17 23:51:01.201] [INFO   ] [ROW 0019] Processing: REF=7935, AMT=181
+[2026-02-17 23:51:05.395] [WARNING] [ROW 0019] Amount not calculated, retrying with longer wait...
+[2026-02-17 23:51:08.503] [SUCCESS] [ROW 0019] Amount calculated on second retry: 18106,34 €
+[2026-02-17 23:51:08.521] [INFO   ] [ROW 0020] Processing: REF=7985, AMT=17
+[2026-02-17 23:51:14.398] [SUCCESS] [ROW 0020] Amount calculated: 2112,76 €
+[2026-02-17 23:51:14.399] [INFO   ] [ROW 0021] Processing: REF=7990, AMT=3
+[2026-02-17 23:51:20.026] [WARNING] [ROW 0021] Amount not calculated, retrying with longer wait...
+[2026-02-17 23:51:23.960] [ERROR  ] [ROW 0021] Amount still not calculated after retries
+[2026-02-17 23:51:23.961] [INFO   ] [ROW 0022] Processing: REF=7992, AMT=3
+[2026-02-17 23:51:29.648] [WARNING] [ROW 0022] Amount not calculated, retrying with longer wait...
+[2026-02-17 23:51:31.930] [SUCCESS] [ROW 0022] Amount calculated on retry: 35,88 €
+[2026-02-17 23:51:31.931] [INFO   ] [ROW 0023] Processing: REF=8090, AMT=3
+[2026-02-17 23:51:39.304] [SUCCESS] [ROW 0023] Amount calculated: 29,45 €
+[2026-02-17 23:51:39.305] [INFO   ] [ROW 0024] Processing: REF=8141, AMT=13
+[2026-02-17 23:51:47.179] [SUCCESS] [ROW 0024] Amount calculated: 1176,24 €
+[2026-02-17 23:51:47.180] [INFO   ] [ROW 0025] Processing: REF=8143, AMT=48
+[2026-02-17 23:51:52.680] [WARNING] [ROW 0025] Amount not calculated, retrying with longer wait...
+[2026-02-17 23:51:54.712] [SUCCESS] [ROW 0025] Amount calculated on retry: 5538,00 €
+[2026-02-17 23:51:54.712] [INFO   ] [ROW 0026] Processing: REF=8145, AMT=1
+[2026-02-17 23:52:02.179] [SUCCESS] [ROW 0026] Amount calculated: 126,23 €
+[2026-02-17 23:52:02.180] [INFO   ] [FILL] Final verification pass...
+[2026-02-17 23:52:18.984] [SUCCESS] [FILL] All rows have amounts calculated!
+[2026-02-17 23:52:18.985] [INFO   ] [FILL] All rows processed!
+[2026-02-17 23:52:18.986] [SUCCESS] All 26 profile rows filled successfully
+[2026-02-17 23:52:18.987] [INFO   ] Filling 35 accessories...
+[2026-02-17 23:52:18.989] [INFO   ] [ACCESSORIES] Starting fill for 35 accessories...
+[2026-02-17 23:52:19.494] [INFO   ] [ACCESSORIES] Current rows: 16, needed: 35
+[2026-02-17 23:52:34.895] [INFO   ] [ACC 0001] Processing: REF=222085, AMT=104, DESC=Die cut cleat
+[2026-02-17 23:52:37.879] [SUCCESS] [ACC 0001] Amount calculated: 20,70 €
+[2026-02-17 23:52:37.880] [INFO   ] [ACC 0002] Processing: REF=222476, AMT=64, DESC=Window sash cleat
+[2026-02-17 23:52:42.041] [WARNING] [ACC 0002] Amount not calculated (may need manual review)
+[2026-02-17 23:52:42.041] [INFO   ] [ACC 0003] Processing: REF=280005, AMT=24, DESC=Rivet nut M5
+[2026-02-17 23:52:46.372] [SUCCESS] [ACC 0003] Amount calculated: 10,80 €
+[2026-02-17 23:52:46.372] [INFO   ] [ACC 0004] Processing: REF=287311, AMT=120, DESC=Alignment cleat
+[2026-02-17 23:52:49.430] [SUCCESS] [ACC 0004] Amount calculated: 14,18 €
+[2026-02-17 23:52:49.431] [INFO   ] [ACC 0005] Processing: REF=296839, AMT=33, DESC=Alignment Cleat
+[2026-02-17 23:52:51.793] [WARNING] [ACC 0005] Amount not calculated (may need manual review)
+[2026-02-17 23:52:51.793] [INFO   ] [ACC 0006] Processing: REF=304500, AMT=26, DESC=Sash centralizer set
+[2026-02-17 23:52:54.497] [WARNING] [ACC 0006] Amount not calculated (may need manual review)
+[2026-02-17 23:52:54.497] [INFO   ] [ACC 0007] Processing: REF=310100, AMT=151, DESC=Ø8 drainage tube
+[2026-02-17 23:52:57.784] [WARNING] [ACC 0007] Amount not calculated (may need manual review)
+[2026-02-17 23:52:57.784] [INFO   ] [ACC 0008] Processing: REF=324625, AMT=156, DESC=7x16x50 mm wool pile
+[2026-02-17 23:53:01.176] [SUCCESS] [ACC 0008] Amount calculated: 0,17 €
+[2026-02-17 23:53:01.177] [INFO   ] [ACC 0009] Processing: REF=327921, AMT=508, DESC=Round teton cleat
+[2026-02-17 23:53:03.303] [SUCCESS] [ACC 0009] Amount calculated: 16,65 €
+[2026-02-17 23:53:03.303] [INFO   ] [ACC 0010] Processing: REF=327971, AMT=100, DESC=Overlapped outer transom cap 1,
+[2026-02-17 23:53:05.979] [WARNING] [ACC 0010] Amount not calculated (may need manual review)
+[2026-02-17 23:53:05.979] [INFO   ] [ACC 0011] Processing: REF=327980, AMT=56, DESC=Frame wedge Cor-70 Industrial
+[2026-02-17 23:53:09.447] [WARNING] [ACC 0011] Amount not calculated (may need manual review)
+[2026-02-17 23:53:09.448] [INFO   ] [ACC 0012] Processing: REF=327981, AMT=812, DESC=Sash wedge Cor-70 Industrial
+[2026-02-17 23:53:12.950] [SUCCESS] [ACC 0012] Amount calculated: 28,35 €
+[2026-02-17 23:53:12.956] [INFO   ] [ACC 0013] Processing: REF=334601, AMT=3, DESC=Bottom+top windbreak kit
+[2026-02-17 23:53:16.758] [WARNING] [ACC 0013] Amount not calculated (may need manual review)
+[2026-02-17 23:53:16.758] [INFO   ] [ACC 0014] Processing: REF=334605, AMT=26, DESC=Intersection cover set
+[2026-02-17 23:53:19.789] [WARNING] [ACC 0014] Amount not calculated (may need manual review)
+[2026-02-17 23:53:19.789] [INFO   ] [ACC 0015] Processing: REF=347922, AMT=508, DESC=Mechanical cleat
+[2026-02-17 23:53:23.426] [WARNING] [ACC 0015] Amount not calculated (may need manual review)
+[2026-02-17 23:53:23.426] [INFO   ] [ACC 0016] Processing: REF=354601, AMT=8, DESC=Glass wedge 4600 lift and slide
+[2026-02-17 23:53:27.321] [WARNING] [ACC 0016] Amount not calculated (may need manual review)
+[2026-02-17 23:53:27.321] [INFO   ] [ACC 0017] Processing: REF=354611, AMT=10, DESC=Trickle vent set minimalist 2 sash
+[2026-02-17 23:53:30.299] [WARNING] [ACC 0017] Amount not calculated (may need manual review)
+[2026-02-17 23:53:30.299] [INFO   ] [ACC 0018] Processing: REF=357043, AMT=525, DESC=Assembly corner cleat of 31,2 x 6,7 mm 1.26 m (4) 364512 Without 1301-1800 union bar 1.76 m (7) 364513 Without 1801-2300 union bar 2.76 m (2) 364514 Without 2301-3300 union bar
+[2026-02-17 23:53:32.700] [WARNING] [ACC 0018] Amount not calculated (may need manual review)
+[2026-02-17 23:53:32.700] [INFO   ] [ACC 0019] Processing: REF=367049, AMT=56, DESC=Assembly corner cleat of 35,5 x 25,8 mm
+[2026-02-17 23:53:35.155] [WARNING] [ACC 0019] Amount not calculated (may need manual review)
+[2026-02-17 23:53:35.155] [INFO   ] [ACC 0020] Processing: REF=367926, AMT=56, DESC=Assembly corner cleat of 39 x 7,8 mm
+[2026-02-17 23:53:37.444] [WARNING] [ACC 0020] Amount not calculated (may need manual review)
+[2026-02-17 23:53:37.444] [INFO   ] [ACC 0021] Processing: REF=367935, AMT=525, DESC=Assembly cleat of 31,2 x 19 mm
+[2026-02-17 23:53:40.323] [WARNING] [ACC 0021] Amount not calculated (may need manual review)
+[2026-02-17 23:53:40.323] [INFO   ] [ACC 0022] Processing: REF=374682, AMT=26, DESC=Tapa lateral solera Cor-4681
+[2026-02-17 23:53:43.283] [WARNING] [ACC 0022] Amount not calculated (may need manual review)
+[2026-02-17 23:53:43.283] [INFO   ] [ACC 0023] Processing: REF=377985, AMT=26, DESC=Kit supplement frame caps
+[2026-02-17 23:53:45.492] [WARNING] [ACC 0023] Amount not calculated (may need manual review)
+[2026-02-17 23:53:45.492] [INFO   ] [ACC 0024] Processing: REF=418181, AMT=122, DESC=Transom joint for COR-8181
+[2026-02-17 23:53:47.707] [WARNING] [ACC 0024] Amount not calculated (may need manual review)
+[2026-02-17 23:53:47.707] [INFO   ] [ACC 0025] Processing: REF=418182, AMT=272, DESC=30.5 transom stop
+[2026-02-17 23:53:49.654] [WARNING] [ACC 0025] Amount not calculated (may need manual review)
+[2026-02-17 23:53:49.654] [INFO   ] [ACC 0026] Processing: REF=418183, AMT=2, DESC=Transom joint for COR-8183
+[2026-02-17 23:53:51.579] [SUCCESS] [ACC 0026] Amount calculated: 0,76 €
+[2026-02-17 23:53:51.579] [INFO   ] [ACC 0027] Processing: REF=423756, AMT=786, DESC=Alignment cleat
+[2026-02-17 23:53:53.586] [WARNING] [ACC 0027] Amount not calculated (may need manual review)
+[2026-02-17 23:53:53.586] [INFO   ] [ACC 0028] Processing: REF=427992, AMT=14, DESC=1 sash cap set
+[2026-02-17 23:53:55.624] [WARNING] [ACC 0028] Amount not calculated (may need manual review)
+[2026-02-17 23:53:55.624] [INFO   ] [ACC 0029] Processing: REF=812913, AMT=400, DESC=DIN7981 Ø2,9x13 Screws
+[2026-02-17 23:53:57.746] [WARNING] [ACC 0029] Amount not calculated (may need manual review)
+[2026-02-17 23:53:57.746] [INFO   ] [ACC 0030] Processing: REF=814219, AMT=156, DESC=DIN7981 Ø4,2x19 screws
+[2026-02-17 23:53:59.814] [WARNING] [ACC 0030] Amount not calculated (may need manual review)
+[2026-02-17 23:53:59.814] [INFO   ] [ACC 0031] Processing: REF=814232, AMT=160, DESC=DIN7981 Ø4,2x32 screws
+[2026-02-17 23:54:02.511] [WARNING] [ACC 0031] Amount not calculated (may need manual review)
+[2026-02-17 23:54:02.511] [INFO   ] [ACC 0032] Processing: REF=824219, AMT=156, DESC=DIN7982 Ø4,2x19 screws
+[2026-02-17 23:54:04.852] [WARNING] [ACC 0032] Amount not calculated (may need manual review)
+[2026-02-17 23:54:04.852] [INFO   ] [ACC 0033] Processing: REF=920100, AMT=476, DESC=Drainage cover
+[2026-02-17 23:54:07.012] [WARNING] [ACC 0033] Amount not calculated (may need manual review)
+[2026-02-17 23:54:07.012] [INFO   ] [ACC 0034] Processing: REF=920135, AMT=692, DESC=Alignment cleat
+[2026-02-17 23:54:09.471] [WARNING] [ACC 0034] Amount not calculated (may need manual review)
+[2026-02-17 23:54:09.471] [INFO   ] [ACC 0035] Processing: REF=920150, AMT=68, DESC=Door transom cleat
+[2026-02-17 23:54:11.947] [WARNING] [ACC 0035] Amount not calculated (may need manual review)
+[2026-02-17 23:54:11.947] [INFO   ] [ACCESSORIES] Accessory fill complete!
+[2026-02-17 23:54:11.949] [SUCCESS] All 35 accessories filled successfully
+[2026-02-17 23:54:13.844] [SUCCESS] Automation completed. 61/61 items processed successfully.
+[2026-02-17 23:54:18.493] [INFO   ] Disposing automation service...
+[2026-02-17 23:54:19.438] [INFO   ] Automation service disposed.
+[2026-02-17 23:54:19.444] [INFO   ] Disposing automation service...
+[2026-02-17 23:54:19.445] [INFO   ] Automation service disposed.

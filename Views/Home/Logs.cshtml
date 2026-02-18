@@ -1,0 +1,196 @@
+@{
+    ViewData["Title"] = "Automation Logs";
+}
+
+<div class="container-fluid mt-3">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="bi bi-file-text me-2"></i>Automation Logs</h5>
+                    <div>
+                        <button class="btn btn-sm btn-outline-primary me-2" onclick="refreshLogs()">
+                            <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary" onclick="clearLogDisplay()">
+                            <i class="bi bi-x-circle me-1"></i>Clear Display
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Log Files List -->
+                        <div class="col-md-3">
+                            <h6>Available Log Files</h6>
+                            <div id="log-files-list" class="list-group list-group-flush" style="max-height: 600px; overflow-y: auto;">
+                                <div class="text-muted p-3">Loading...</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Log Content -->
+                        <div class="col-md-9">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h6 id="current-log-name">Select a log file to view</h6>
+                                <div>
+                                    <button class="btn btn-sm btn-outline-success me-2" onclick="downloadCurrentLog()" id="btn-download" disabled>
+                                        <i class="bi bi-download me-1"></i>Download
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-info" onclick="autoRefresh()" id="btn-auto-refresh">
+                                        <i class="bi bi-play me-1"></i>Auto Refresh
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="log-content" class="bg-dark text-light p-3 rounded" 
+                                 style="font-family: 'Consolas', 'Monaco', monospace; font-size: 12px; white-space: pre-wrap; max-height: 600px; overflow-y: auto; overflow-x: auto;">
+Select a log file from the left panel to view its contents.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
+    <script>
+        let currentLogName = null;
+        let autoRefreshInterval = null;
+
+        // Load log files on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadLogFiles();
+        });
+
+        function loadLogFiles() {
+            fetch('/Home/ListLogs')
+                .then(response => response.json())
+                .then(data => {
+                    const listEl = document.getElementById('log-files-list');
+                    if (data.logs.length === 0) {
+                        listEl.innerHTML = '<div class="text-muted p-3">No log files found</div>';
+                        return;
+                    }
+
+                    listEl.innerHTML = data.logs.map(log => `
+                        <a href="#" class="list-group-item list-group-item-action" 
+                           onclick="loadLog('${log.name}'); return false;">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-truncate" style="max-width: 150px;">${log.name}</small>
+                                <span class="badge bg-secondary">${formatSize(log.size)}</span>
+                            </div>
+                            <small class="text-muted">${new Date(log.created).toLocaleString()}</small>
+                        </a>
+                    `).join('');
+
+                    // Auto-load the latest log
+                    if (data.logs.length > 0 && !currentLogName) {
+                        loadLog(data.logs[0].name);
+                    }
+                })
+                .catch(err => {
+                    document.getElementById('log-files-list').innerHTML = 
+                        `<div class="text-danger p-3">Error loading logs: ${err.message}</div>`;
+                });
+        }
+
+        function loadLog(name) {
+            currentLogName = name;
+            document.getElementById('current-log-name').textContent = name;
+            document.getElementById('btn-download').disabled = false;
+            document.getElementById('log-content').innerHTML = 'Loading...';
+
+            fetch(`/Home/ViewLog?name=${encodeURIComponent(name)}`)
+                .then(response => {
+                    if (!response.ok) throw new Error('Log not found');
+                    return response.text();
+                })
+                .then(content => {
+                    const logEl = document.getElementById('log-content');
+                    logEl.innerHTML = highlightLog(content);
+                    logEl.scrollTop = logEl.scrollHeight; // Scroll to bottom
+                })
+                .catch(err => {
+                    document.getElementById('log-content').innerHTML = `Error: ${err.message}`;
+                });
+        }
+
+        function highlightLog(content) {
+            // Escape HTML
+            content = content.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            
+            // Add colors for different log levels
+            content = content.replace(/\[ERROR\s*\]/g, '<span style="color: #ff6b6b;">[ERROR  ]</span>');
+            content = content.replace(/\[WARNING\]/g, '<span style="color: #feca57;">[WARNING]</span>');
+            content = content.replace(/\[SUCCESS\]/g, '<span style="color: #26de81;">[SUCCESS]</span>');
+            content = content.replace(/\[INFO\s*\]/g, '<span style="color: #74b9ff;">[INFO   ]</span>');
+            
+            // Highlight sections
+            content = content.replace(/\[(LOGIN|NAVIGATE|HEADER|ROW \d+|PAGE STATE|SELECT|AVAILABLE SELECTORS)[^\]]*\]/g, 
+                '<span style="color: #a29bfe;">$&</span>');
+            
+            return content;
+        }
+
+        function refreshLogs() {
+            loadLogFiles();
+            if (currentLogName) {
+                loadLog(currentLogName);
+            }
+        }
+
+        function clearLogDisplay() {
+            document.getElementById('log-content').innerHTML = 'Cleared. Select a log file to view.';
+            currentLogName = null;
+            document.getElementById('current-log-name').textContent = 'Select a log file to view';
+            document.getElementById('btn-download').disabled = true;
+        }
+
+        function downloadCurrentLog() {
+            if (currentLogName) {
+                window.location.href = `/Home/ViewLog?name=${encodeURIComponent(currentLogName)}&download=true`;
+            }
+        }
+
+        function autoRefresh() {
+            const btn = document.getElementById('btn-auto-refresh');
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+                autoRefreshInterval = null;
+                btn.innerHTML = '<i class="bi bi-play me-1"></i>Auto Refresh';
+                btn.classList.remove('btn-warning');
+                btn.classList.add('btn-outline-info');
+            } else {
+                autoRefreshInterval = setInterval(() => {
+                    if (currentLogName) {
+                        loadLog(currentLogName);
+                    }
+                    loadLogFiles();
+                }, 2000);
+                btn.innerHTML = '<i class="bi bi-pause me-1"></i>Stop Refresh';
+                btn.classList.remove('btn-outline-info');
+                btn.classList.add('btn-warning');
+            }
+        }
+
+        function formatSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+        }
+    </script>
+    
+    <style>
+        #log-content {
+            line-height: 1.4;
+        }
+        .list-group-item:hover {
+            background-color: #f8f9fa;
+        }
+        .list-group-item.active {
+            background-color: #007bff;
+        }
+    </style>
+}

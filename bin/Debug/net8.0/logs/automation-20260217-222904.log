@@ -1,0 +1,28 @@
+[2026-02-17 22:29:04.384] [INFO   ] Initializing browser automation...
+[2026-02-17 22:29:12.911] [ERROR  ] Automation failed: Executable doesn't exist at C:\Users\Lirim\AppData\Local\ms-playwright\chromium-1148\chrome-win\chrome.exe
+╔════════════════════════════════════════════════════════════╗
+║ Looks like Playwright was just installed or updated.       ║
+║ Please run the following command to download new browsers: ║
+║                                                            ║
+║     pwsh bin/Debug/netX/playwright.ps1 install             ║
+║                                                            ║
+║ <3 Playwright Team                                         ║
+╚════════════════════════════════════════════════════════════╝
+    Details: Microsoft.Playwright.PlaywrightException: Executable doesn't exist at C:\Users\Lirim\AppData\Local\ms-playwright\chromium-1148\chrome-win\chrome.exe
+╔════════════════════════════════════════════════════════════╗
+║ Looks like Playwright was just installed or updated.       ║
+║ Please run the following command to download new browsers: ║
+║                                                            ║
+║     pwsh bin/Debug/netX/playwright.ps1 install             ║
+║                                                            ║
+║ <3 Playwright Team                                         ║
+╚════════════════════════════════════════════════════════════╝
+   at Microsoft.Playwright.Transport.Connection.InnerSendMessageToServerAsync[T](ChannelOwner object, String method, Dictionary`2 dictionary, Boolean keepNulls) in /_/src/Playwright/Transport/Connection.cs:line 206
+   at Microsoft.Playwright.Transport.Connection.WrapApiCallAsync[T](Func`1 action, Boolean isInternal) in /_/src/Playwright/Transport/Connection.cs:line 535
+   at Microsoft.Playwright.Core.BrowserType.LaunchAsync(BrowserTypeLaunchOptions options) in /_/src/Playwright/Core/BrowserType.cs:line 56
+   at VisorQuotationWebApp.Services.CortizoAutomationService.InitializeBrowserAsync(String tracePath) in D:\Lirim\Sources\Visor\VisorQuotationWebApp\Services\CortizoAutomationService.cs:line 211
+   at VisorQuotationWebApp.Services.CortizoAutomationService.RunAutomationAsync(CortizoCredentials credentials, QuotationViewModel viewModel, List`1 profiles, CancellationToken cancellationToken) in D:\Lirim\Sources\Visor\VisorQuotationWebApp\Services\CortizoAutomationService.cs:line 63
+[2026-02-17 22:29:12.922] [INFO   ] Disposing automation service...
+[2026-02-17 22:29:13.057] [INFO   ] Automation service disposed.
+[2026-02-17 22:29:13.085] [INFO   ] Disposing automation service...
+[2026-02-17 22:29:13.085] [INFO   ] Automation service disposed.

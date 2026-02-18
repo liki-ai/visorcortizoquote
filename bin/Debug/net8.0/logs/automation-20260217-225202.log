@@ -1,0 +1,205 @@
+[2026-02-17 22:52:02.990] [INFO   ] Initializing browser automation...
+[2026-02-17 22:52:07.525] [INFO   ] Navigating to Cortizo Center login page...
+[2026-02-17 22:52:07.526] [INFO   ] Target URL: https://cortizocenter.com/Login.aspx
+[2026-02-17 22:52:10.162] [INFO   ] [PAGE STATE - After loading login page]
+[2026-02-17 22:52:10.162] [INFO   ]   URL: https://cortizocenter.com/Login.aspx
+[2026-02-17 22:52:10.162] [INFO   ]   Title: CORTIZO CENTER
+[2026-02-17 22:52:10.269] [INFO   ]   Login Form: Found (Visible)
+[2026-02-17 22:52:10.278] [INFO   ]   Quotations Link: Not Found
+[2026-02-17 22:52:10.285] [INFO   ]   Profiles Grid: Not Found
+[2026-02-17 22:52:10.291] [INFO   ]   General Color Finish 1: Not Found
+[2026-02-17 22:52:10.297] [INFO   ]   First Reference Input: Not Found
+[2026-02-17 22:52:10.300] [INFO   ] Logging in...
+[2026-02-17 22:52:10.303] [INFO   ] [LOGIN] Starting login process...
+[2026-02-17 22:52:10.303] [INFO   ] [LOGIN] Waiting for login form...
+[2026-02-17 22:52:10.356] [INFO   ] [LOGIN] Filling username: salesadria
+[2026-02-17 22:52:10.549] [INFO   ] [LOGIN] Filling password: ********
+[2026-02-17 22:52:10.706] [INFO   ] [LOGIN] Looking for login button...
+[2026-02-17 22:52:10.737] [INFO   ] [LOGIN] Found button with selector: text=ACCEDER
+[2026-02-17 22:52:11.643] [INFO   ] [LOGIN] Clicked login button
+[2026-02-17 22:52:13.657] [INFO   ] [LOGIN] Current URL after login attempt: https://cortizocenter.com/Inicio.aspx
+[2026-02-17 22:52:13.704] [SUCCESS] Login successful!
+[2026-02-17 22:52:13.722] [INFO   ] [PAGE STATE - After login]
+[2026-02-17 22:52:13.722] [INFO   ]   URL: https://cortizocenter.com/Inicio.aspx
+[2026-02-17 22:52:13.722] [INFO   ]   Title: CORTIZO CENTER
+[2026-02-17 22:52:13.761] [INFO   ]   Login Form: Not Found
+[2026-02-17 22:52:13.849] [INFO   ]   Quotations Link: Found (Visible)
+[2026-02-17 22:52:13.856] [INFO   ]   Profiles Grid: Not Found
+[2026-02-17 22:52:13.862] [INFO   ]   General Color Finish 1: Not Found
+[2026-02-17 22:52:13.868] [INFO   ]   First Reference Input: Not Found
+[2026-02-17 22:52:13.872] [INFO   ] Navigating to Quotations / Online Orders...
+[2026-02-17 22:52:13.895] [INFO   ] [NAVIGATE] Starting navigation to Quotations...
+[2026-02-17 22:52:13.895] [INFO   ] [NAVIGATE] Current URL: https://cortizocenter.com/Inicio.aspx
+[2026-02-17 22:52:13.895] [INFO   ] [NAVIGATE] Trying selector: #ctl00_ico7
+[2026-02-17 22:52:13.963] [INFO   ] [NAVIGATE] Found element! Visible: True
+[2026-02-17 22:52:24.945] [INFO   ] [NAVIGATE] Clicked element, waiting for navigation...
+[2026-02-17 22:52:31.120] [INFO   ] [NAVIGATE] Navigation complete. New URL: https://ccenter.cortizo.mobi/Valoraciones.aspx?Id=CgAAAB-LCAAAAAAABAAzZDBksARiAwYAwS14mQoAAAA=&Lg=BAAAAB-LCAAAAAAABABzZfBjAACYFXTjBAAAAA==
+[2026-02-17 22:52:31.124] [INFO   ] [PAGE STATE - After navigating to quotations]
+[2026-02-17 22:52:31.124] [INFO   ]   URL: https://ccenter.cortizo.mobi/Valoraciones.aspx?Id=CgAAAB-LCAAAAAAABAAzZDBksARiAwYAwS14mQoAAAA=&Lg=BAAAAB-LCAAAAAAABABzZfBjAACYFXTjBAAAAA==
+[2026-02-17 22:52:31.124] [INFO   ]   Title: CORTIZO CENTER
+[2026-02-17 22:52:31.202] [INFO   ]   Login Form: Found (Hidden)
+[2026-02-17 22:52:31.267] [INFO   ]   Quotations Link: Found (Visible)
+[2026-02-17 22:52:31.314] [INFO   ]   Profiles Grid: Found (Visible)
+[2026-02-17 22:52:31.371] [INFO   ]   General Color Finish 1: Found (Visible)
+[2026-02-17 22:52:31.437] [INFO   ]   First Reference Input: Found (Visible)
+[2026-02-17 22:52:31.444] [INFO   ] [AVAILABLE SELECTORS in body]
+[2026-02-17 22:52:31.618] [INFO   ]   Found 124 select elements:
+[2026-02-17 22:52:31.724] [INFO   ]     - id='ctl00_ContentPlaceHolderCortizoCenter_Lst_Valoraciones' name='ctl00$ContentPlaceHolderCortizoCenter$Lst_Valoraciones' visible=True
+[2026-02-17 22:52:31.779] [INFO   ]     - id='ctl00_ContentPlaceHolderCortizoCenter_LstMicraje' name='ctl00$ContentPlaceHolderCortizoCenter$LstMicraje' visible=True
+[2026-02-17 22:52:31.842] [INFO   ]     - id='ctl00_ContentPlaceHolderCortizoCenter_ddlIdioma' name='ctl00$ContentPlaceHolderCortizoCenter$ddlIdioma' visible=True
+[2026-02-17 22:52:31.906] [INFO   ]     - id='ctl00_ContentPlaceHolderCortizoCenter_CbLugEnvioPerfil' name='ctl00$ContentPlaceHolderCortizoCenter$CbLugEnvioPerfil' visible=True
+[2026-02-17 22:52:31.969] [INFO   ]     - id='ctl00_ContentPlaceHolderCortizoCenter_CbLugEnvioAcc' name='ctl00$ContentPlaceHolderCortizoCenter$CbLugEnvioAcc' visible=True
+[2026-02-17 22:52:32.044] [INFO   ]     - id='ctl00_ContentPlaceHolderCortizoCenter_CbLugEnvioPvc' name='ctl00$ContentPlaceHolderCortizoCenter$CbLugEnvioPvc' visible=True
+[2026-02-17 22:52:32.099] [INFO   ]     - id='ddlAcabado_1_ColorGeneral' name='' visible=True
+[2026-02-17 22:52:32.157] [INFO   ]     - id='ddlMatiz_1_ColorGeneral' name='' visible=True
+[2026-02-17 22:52:32.213] [INFO   ]     - id='ddlAcabado_2_ColorGeneral' name='' visible=True
+[2026-02-17 22:52:32.264] [INFO   ]     - id='ddlMatiz_2_ColorGeneral' name='' visible=True
+[2026-02-17 22:52:32.325] [INFO   ]     - id='ddlAcabado1_0001' name='' visible=True
+[2026-02-17 22:52:32.388] [INFO   ]     - id='ddlMatiz1_0001' name='' visible=True
+[2026-02-17 22:52:32.450] [INFO   ]     - id='ddlAcabado2_0001' name='' visible=True
+[2026-02-17 22:52:32.513] [INFO   ]     - id='ddlMatiz2_0001' name='' visible=True
+[2026-02-17 22:52:32.581] [INFO   ]     - id='ddlBase_0001' name='' visible=True
+[2026-02-17 22:52:32.653] [INFO   ]     - id='ddlAcabado1_0002' name='' visible=True
+[2026-02-17 22:52:32.720] [INFO   ]     - id='ddlMatiz1_0002' name='' visible=True
+[2026-02-17 22:52:32.774] [INFO   ]     - id='ddlAcabado2_0002' name='' visible=True
+[2026-02-17 22:52:32.842] [INFO   ]     - id='ddlMatiz2_0002' name='' visible=True
+[2026-02-17 22:52:32.915] [INFO   ]     - id='ddlBase_0002' name='' visible=True
+[2026-02-17 22:52:33.201] [INFO   ]   Found 190 text input elements:
+[2026-02-17 22:52:33.288] [INFO   ]     - id='ctl00_ContentPlaceHolderCortizoCenter_txtPrecioConRotura' name='ctl00$ContentPlaceHolderCortizoCenter$txtPrecioConRotura' visible=True
+[2026-02-17 22:52:33.353] [INFO   ]     - id='ctl00_ContentPlaceHolderCortizoCenter_txtPrecioSinRotura' name='ctl00$ContentPlaceHolderCortizoCenter$txtPrecioSinRotura' visible=True
+[2026-02-17 22:52:33.421] [INFO   ]     - id='ctl00_ContentPlaceHolderCortizoCenter_txtPrecioLacado' name='ctl00$ContentPlaceHolderCortizoCenter$txtPrecioLacado' visible=True
+[2026-02-17 22:52:33.480] [INFO   ]     - id='ctl00_ContentPlaceHolderCortizoCenter_txtPrecioAnodizado' name='ctl00$ContentPlaceHolderCortizoCenter$txtPrecioAnodizado' visible=True
+[2026-02-17 22:52:33.528] [INFO   ]     - id='ctl00_ContentPlaceHolderCortizoCenter_txtPVCDescuentoPVC' name='ctl00$ContentPlaceHolderCortizoCenter$txtPVCDescuentoPVC' visible=True
+[2026-02-17 22:52:33.585] [INFO   ]     - id='ctl00_ContentPlaceHolderCortizoCenter_txtPVCDescuentoAluminio' name='ctl00$ContentPlaceHolderCortizoCenter$txtPVCDescuentoAluminio' visible=True
+[2026-02-17 22:52:33.650] [INFO   ]     - id='ctl00_ContentPlaceHolderCortizoCenter_txtPVCDescuentoAcero' name='ctl00$ContentPlaceHolderCortizoCenter$txtPVCDescuentoAcero' visible=True
+[2026-02-17 22:52:33.722] [INFO   ]     - id='ctl00_ContentPlaceHolderCortizoCenter_txtDescuentoAccesorios' name='ctl00$ContentPlaceHolderCortizoCenter$txtDescuentoAccesorios' visible=True
+[2026-02-17 22:52:33.779] [INFO   ]     - id='ctl00_ContentPlaceHolderCortizoCenter_NumValoracion' name='ctl00$ContentPlaceHolderCortizoCenter$NumValoracion' visible=False
+[2026-02-17 22:52:33.842] [INFO   ]     - id='ctl00_ContentPlaceHolderCortizoCenter_txtCIF' name='ctl00$ContentPlaceHolderCortizoCenter$txtCIF' visible=True
+[2026-02-17 22:52:33.912] [INFO   ]     - id='ctl00_ContentPlaceHolderCortizoCenter_txtCodigoCliente' name='ctl00$ContentPlaceHolderCortizoCenter$txtCodigoCliente' visible=True
+[2026-02-17 22:52:33.983] [INFO   ]     - id='ctl00_ContentPlaceHolderCortizoCenter_TxtCodPedCliente' name='ctl00$ContentPlaceHolderCortizoCenter$TxtCodPedCliente' visible=True
+[2026-02-17 22:52:34.043] [INFO   ]     - id='ctl00_ContentPlaceHolderCortizoCenter_TxtUsuario' name='ctl00$ContentPlaceHolderCortizoCenter$TxtUsuario' visible=False
+[2026-02-17 22:52:34.104] [INFO   ]     - id='ctl00_ContentPlaceHolderCortizoCenter_ControlLogin_UsernameTB' name='ctl00$ContentPlaceHolderCortizoCenter$ControlLogin$UsernameTB' visible=False
+[2026-02-17 22:52:34.174] [INFO   ]     - id='txtReferencia_0001' name='' visible=True
+[2026-02-17 22:52:34.239] [INFO   ]     - id='txtCantidad_0001' name='' visible=True
+[2026-02-17 22:52:34.298] [INFO   ]     - id='txtDescripcion_0001' name='' visible=True
+[2026-02-17 22:52:34.347] [INFO   ]     - id='txtPrecio_0001' name='' visible=True
+[2026-02-17 22:52:34.410] [INFO   ]     - id='txtLongitud_0001' name='' visible=True
+[2026-02-17 22:52:34.478] [INFO   ]     - id='txtImporte_0001' name='' visible=True
+[2026-02-17 22:52:34.523] [INFO   ]   Found 24 button/link elements:
+[2026-02-17 22:52:34.624] [INFO   ]     - id='' text='DECLINE' visible=False
+[2026-02-17 22:52:34.738] [INFO   ]     - id='' text='ACCEPT' visible=False
+[2026-02-17 22:52:34.836] [INFO   ]     - id='ctl00_ico1' text='' visible=True
+[2026-02-17 22:52:34.940] [INFO   ]     - id='ctl00_ico2' text='' visible=True
+[2026-02-17 22:52:35.046] [INFO   ]     - id='ctl00_ico3' text='' visible=True
+[2026-02-17 22:52:35.170] [INFO   ]     - id='ctl00_ico4' text='' visible=True
+[2026-02-17 22:52:35.314] [INFO   ]     - id='ctl00_ico5' text='' visible=True
+[2026-02-17 22:52:35.404] [INFO   ]     - id='ctl00_ico6' text='' visible=True
+[2026-02-17 22:52:35.482] [INFO   ]     - id='ctl00_ico7' text='' visible=True
+[2026-02-17 22:52:35.566] [INFO   ]     - id='ctl00_ico8' text='' visible=True
+[2026-02-17 22:52:35.655] [INFO   ]     - id='ctl00_ico9' text='' visible=True
+[2026-02-17 22:52:35.734] [INFO   ]     - id='ctl00_ico10' text='' visible=True
+[2026-02-17 22:52:35.818] [INFO   ]     - id='ctl00_ico11' text='' visible=False
+[2026-02-17 22:52:35.901] [INFO   ]     - id='' text='ES|' visible=True
+[2026-02-17 22:52:35.986] [INFO   ]     - id='' text='EN|' visible=True
+[2026-02-17 22:52:36.075] [INFO   ]     - id='' text='PT|' visible=True
+[2026-02-17 22:52:36.163] [INFO   ]     - id='' text='PL|' visible=True
+[2026-02-17 22:52:36.250] [INFO   ]     - id='' text='SK|' visible=True
+[2026-02-17 22:52:36.344] [INFO   ]     - id='' text='CZ|' visible=True
+[2026-02-17 22:52:36.536] [INFO   ]     - id='' text='FR|' visible=True
+[2026-02-17 22:52:36.540] [INFO   ] Creating new valuation...
+[2026-02-17 22:52:37.962] [INFO   ] [PAGE STATE - After creating new valuation]
+[2026-02-17 22:52:37.962] [INFO   ]   URL: https://ccenter.cortizo.mobi/Valoraciones.aspx?Id=CgAAAB-LCAAAAAAABAAzZDBksARiAwYAwS14mQoAAAA=&Lg=BAAAAB-LCAAAAAAABABzZfBjAACYFXTjBAAAAA==
+[2026-02-17 22:52:37.962] [INFO   ]   Title: CORTIZO CENTER
+[2026-02-17 22:52:38.032] [INFO   ]   Login Form: Found (Hidden)
+[2026-02-17 22:52:38.127] [INFO   ]   Quotations Link: Found (Visible)
+[2026-02-17 22:52:38.206] [INFO   ]   Profiles Grid: Found (Visible)
+[2026-02-17 22:52:38.315] [INFO   ]   General Color Finish 1: Found (Visible)
+[2026-02-17 22:52:38.373] [INFO   ]   First Reference Input: Found (Visible)
+[2026-02-17 22:52:38.376] [INFO   ] Setting header fields...
+[2026-02-17 22:52:38.383] [INFO   ] [HEADER] Setting header fields...
+[2026-02-17 22:52:38.383] [INFO   ] [HEADER] Setting Microns to: 15
+[2026-02-17 22:52:38.405] [INFO   ] [SELECT] Trying selector: #ctl00_ContentPlaceHolderCortizoCenter_LstMicraje, select[name*='Micraje'] with value: 15
+[2026-02-17 22:52:38.485] [INFO   ] [SELECT] Found element, visible: True
+[2026-02-17 22:52:38.772] [INFO   ] [SELECT] Options (3 total): 15='15', 20='20', 25='25'
+[2026-02-17 22:52:38.977] [INFO   ] [SELECT] Successfully set by value: 15
+[2026-02-17 22:52:38.977] [INFO   ] [HEADER] Setting Language to: ENGLISH
+[2026-02-17 22:52:38.978] [INFO   ] [SELECT] Trying selector: #ctl00_ContentPlaceHolderCortizoCenter_ddlIdioma, select[name*='Idioma'] with value: ENGLISH
+[2026-02-17 22:52:39.058] [INFO   ] [SELECT] Found element, visible: True
+[2026-02-17 22:52:39.780] [INFO   ] [SELECT] Options (12 total): es='ESPAÑOL', en='ENGLISH', pl='POLSKI', cz='ČESKÉ', sk='SLOVENSKO', fr='FRANÇAIS', ro='ROMANA', hu='HUNGARIAN', hu='HRVATSKA', pt='PORTUGUÉS'
+[2026-02-17 22:53:09.944] [INFO   ] [SELECT] Set by value failed: Timeout 30000ms exceeded.
+Call log:
+  -   - attempting select option action
+  -     2 × waiting for element to be visible and enabled
+  -       - did not find some options
+  -     - retrying select option action
+  -     - waiting 20ms
+  -     2 × waiting for element to be visible and enabled
+  -       - did not find some options
+  -     - retrying select option action
+  -       - waiting 100ms
+  -     56 × waiting for element to be visible and enabled
+  -        - did not find some options
+  -      - retrying select option action
+  -        - waiting 500ms, trying by label...
+[2026-02-17 22:53:10.131] [INFO   ] [SELECT] Successfully set by label: ENGLISH
+[2026-02-17 22:53:10.131] [INFO   ] [HEADER] Setting Finish 1: 90 -> value=90
+[2026-02-17 22:53:10.131] [INFO   ] [SELECT] Trying selector: #ddlAcabado_1_ColorGeneral with value: 90
+[2026-02-17 22:53:10.186] [INFO   ] [SELECT] Found element, visible: True
+[2026-02-17 22:53:10.987] [INFO   ] [SELECT] Options (37 total): ='', 0='PVC', 1='SILVER ANODISED (1)', 10='BLACK ANODISED (10)', 16='ACIER ANODISED (16)', 17='INOX ANODISED (17)', 2='GOLD ANODISED (2)', 21='CHAMPAGNE ANODISED (21)', 22='IVORY ANODISED (22)', 3='BRONZE ANODISED (3)'
+[2026-02-17 22:53:11.207] [INFO   ] [SELECT] Successfully set by value: 90
+[2026-02-17 22:53:11.731] [INFO   ] [HEADER] Setting Shade 1: P1019M
+[2026-02-17 22:53:11.731] [INFO   ] [SELECT] Trying selector: #ddlMatiz_1_ColorGeneral with value: P1019M
+[2026-02-17 22:53:11.817] [INFO   ] [SELECT] Found element, visible: True
+[2026-02-17 22:53:12.969] [INFO   ] [SELECT] Options (133 total): ='', 1013CM='1013CM', 5011ST='5011ST', 5014CM='5014CM', 7005CM='7005CM', 7011CM='7011CM', 7012CM='7012CM', 7015CM='7015CM', 7015ST='7015ST', 7021CM='7021CM'
+[2026-02-17 22:53:13.167] [INFO   ] [SELECT] Successfully set by value: P1019M
+[2026-02-17 22:53:13.167] [INFO   ] [HEADER] Setting Finish 2: 90 -> value=90
+[2026-02-17 22:53:13.167] [INFO   ] [SELECT] Trying selector: #ddlAcabado_2_ColorGeneral with value: 90
+[2026-02-17 22:53:13.240] [INFO   ] [SELECT] Found element, visible: True
+[2026-02-17 22:53:13.960] [INFO   ] [SELECT] Options (37 total): ='', 0='PVC', 1='SILVER ANODISED (1)', 10='BLACK ANODISED (10)', 16='ACIER ANODISED (16)', 17='INOX ANODISED (17)', 2='GOLD ANODISED (2)', 21='CHAMPAGNE ANODISED (21)', 22='IVORY ANODISED (22)', 3='BRONZE ANODISED (3)'
+[2026-02-17 22:53:14.163] [INFO   ] [SELECT] Successfully set by value: 90
+[2026-02-17 22:53:14.676] [INFO   ] [HEADER] Setting Shade 2: P1019M
+[2026-02-17 22:53:14.676] [INFO   ] [SELECT] Trying selector: #ddlMatiz_2_ColorGeneral with value: P1019M
+[2026-02-17 22:53:14.739] [INFO   ] [SELECT] Found element, visible: True
+[2026-02-17 22:53:15.792] [INFO   ] [SELECT] Options (133 total): ='', 1013CM='1013CM', 5011ST='5011ST', 5014CM='5014CM', 7005CM='7005CM', 7011CM='7011CM', 7012CM='7012CM', 7015CM='7015CM', 7015ST='7015ST', 7021CM='7021CM'
+[2026-02-17 22:53:15.987] [INFO   ] [SELECT] Successfully set by value: P1019M
+[2026-02-17 22:53:15.987] [INFO   ] [HEADER] Header fields set complete
+[2026-02-17 22:53:15.992] [INFO   ] [PAGE STATE - After setting header fields]
+[2026-02-17 22:53:15.992] [INFO   ]   URL: https://ccenter.cortizo.mobi/Valoraciones.aspx?Id=CgAAAB-LCAAAAAAABAAzZDBksARiAwYAwS14mQoAAAA=&Lg=BAAAAB-LCAAAAAAABABzZfBjAACYFXTjBAAAAA==
+[2026-02-17 22:53:15.992] [INFO   ]   Title: CORTIZO CENTER
+[2026-02-17 22:53:16.063] [INFO   ]   Login Form: Found (Hidden)
+[2026-02-17 22:53:16.135] [INFO   ]   Quotations Link: Found (Visible)
+[2026-02-17 22:53:16.210] [INFO   ]   Profiles Grid: Found (Visible)
+[2026-02-17 22:53:16.270] [INFO   ]   General Color Finish 1: Found (Visible)
+[2026-02-17 22:53:16.348] [INFO   ]   First Reference Input: Found (Visible)
+[2026-02-17 22:53:16.349] [INFO   ] Setting customized prices...
+[2026-02-17 22:53:16.353] [INFO   ] [PRICES] Setting customized prices...
+[2026-02-17 22:53:16.353] [INFO   ] [PRICES] Setting WITH BREAK: 7.56
+[2026-02-17 22:53:16.654] [INFO   ] [PRICES] Setting WITHOUT BREAK: 5.16
+[2026-02-17 22:53:16.897] [INFO   ] [PRICES] Setting PVC: 15
+[2026-02-17 22:53:17.193] [INFO   ] [PRICES] Setting ALUMINIUM: 10
+[2026-02-17 22:53:17.453] [INFO   ] [PRICES] Setting ACCESSORIES DISCOUNT: 10
+[2026-02-17 22:53:17.835] [INFO   ] [PRICES] Customized prices set complete
+[2026-02-17 22:53:17.843] [INFO   ] [PAGE STATE - After setting customized prices]
+[2026-02-17 22:53:17.843] [INFO   ]   URL: https://ccenter.cortizo.mobi/Valoraciones.aspx?Id=CgAAAB-LCAAAAAAABAAzZDBksARiAwYAwS14mQoAAAA=&Lg=BAAAAB-LCAAAAAAABABzZfBjAACYFXTjBAAAAA==
+[2026-02-17 22:53:17.843] [INFO   ]   Title: CORTIZO CENTER
+[2026-02-17 22:53:17.911] [INFO   ]   Login Form: Found (Hidden)
+[2026-02-17 22:53:17.982] [INFO   ]   Quotations Link: Found (Visible)
+[2026-02-17 22:53:18.051] [INFO   ]   Profiles Grid: Found (Visible)
+[2026-02-17 22:53:18.128] [INFO   ]   General Color Finish 1: Found (Visible)
+[2026-02-17 22:53:18.198] [INFO   ]   First Reference Input: Found (Visible)
+[2026-02-17 22:53:18.199] [INFO   ] Ensuring 26 rows are available in the grid...
+[2026-02-17 22:53:20.509] [INFO   ] Filling 26 profile items (fast batch mode)...
+[2026-02-17 22:53:20.514] [INFO   ] [FAST FILL] Starting batch fill for 26 profiles...
+[2026-02-17 22:53:20.539] [INFO   ] [FAST FILL] Executing batch fill JavaScript...
+[2026-02-17 22:53:20.733] [INFO   ] [FAST FILL] Batch fill completed: System.Object[]
+[2026-02-17 22:53:20.944] [INFO   ] [FAST FILL] Triggering validation events...
+[2026-02-17 22:53:30.034] [INFO   ] [FAST FILL] Validation events triggered
+[2026-02-17 22:53:30.551] [INFO   ] [FAST FILL] Setting shade values...
+[2026-02-17 22:53:31.069] [INFO   ] [FAST FILL] Triggering final price calculations...
+[2026-02-17 22:53:39.705] [INFO   ] [FAST FILL] Batch fill complete!
+[2026-02-17 22:53:39.706] [SUCCESS] All 26 rows filled successfully
+[2026-02-17 22:53:41.578] [SUCCESS] Automation completed. 26/26 items processed successfully.
+[2026-02-17 22:53:45.280] [INFO   ] Disposing automation service...
+[2026-02-17 22:53:48.424] [INFO   ] Automation service disposed.
+[2026-02-17 22:53:48.443] [INFO   ] Disposing automation service...
+[2026-02-17 22:53:48.444] [INFO   ] Automation service disposed.
