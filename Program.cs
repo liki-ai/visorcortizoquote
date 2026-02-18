@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using VisorQuotationWebApp.Hubs;
 using VisorQuotationWebApp.Models;
 using VisorQuotationWebApp.Services;
@@ -6,7 +7,11 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-builder.Services.AddSignalR();
+builder.Services.AddSignalR()
+    .AddJsonProtocol(options =>
+    {
+        options.PayloadSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
 
 // Configure Cortizo settings
 var cortizoConfig = builder.Configuration.GetSection("Cortizo").Get<AutomationConfig>() ?? new AutomationConfig();

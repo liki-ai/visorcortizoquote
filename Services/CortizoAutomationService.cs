@@ -139,6 +139,7 @@ public class CortizoAutomationService : IAsyncDisposable
                 result.SuccessfulItems = selectedProfiles.Count;
                 Log(result, AutomationLogLevel.Success, $"All {selectedProfiles.Count} profile rows filled successfully");
             }
+            catch (OperationCanceledException) { throw; }
             catch (Exception ex)
             {
                 result.FailedItems = selectedProfiles.Count;
@@ -155,6 +156,7 @@ public class CortizoAutomationService : IAsyncDisposable
                     result.SuccessfulItems += selectedAccessories.Count;
                     Log(result, AutomationLogLevel.Success, $"All {selectedAccessories.Count} accessories filled successfully");
                 }
+                catch (OperationCanceledException) { throw; }
                 catch (Exception ex)
                 {
                     result.FailedItems += selectedAccessories.Count;

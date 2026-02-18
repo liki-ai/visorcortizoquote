@@ -34,15 +34,23 @@ async function initSignalR() {
     }
 }
 
+function normalizeLevel(level) {
+    if (typeof level === 'number') {
+        return ['info', 'success', 'warning', 'error'][level] || 'info';
+    }
+    return (level || 'info').toString().toLowerCase();
+}
+
 function addLogEntry(logEntry) {
     const logContainer = document.getElementById('log-container');
     if (!logContainer) return;
 
+    const level = normalizeLevel(logEntry.level);
     const entry = document.createElement('div');
-    entry.className = `log-entry log-${logEntry.level.toLowerCase()}`;
+    entry.className = `log-entry log-${level}`;
 
     const timestamp = new Date(logEntry.timestamp).toLocaleTimeString();
-    const icon = getLogIcon(logEntry.level);
+    const icon = getLogIcon(level);
 
     entry.innerHTML = `
         <span class="log-time">${timestamp}</span>
@@ -66,7 +74,7 @@ function getLogIcon(level) {
 
 function parseLogForProgress(logEntry) {
     const msg = logEntry.message || '';
-    const level = (logEntry.level || '').toLowerCase();
+    const level = normalizeLevel(logEntry.level);
 
     // Step: Login
     if (msg.includes('Navigating to Cortizo Center login')) {
@@ -79,22 +87,23 @@ function parseLogForProgress(logEntry) {
         setProgressBar(15);
     }
 
-    // Step: Header
-    else if (msg.includes('Setting header fields')) {
+    // Step: Header (valuation created first, then header fields)
+    else if (msg.includes('Creating new valuation')) {
         setActiveStep('header');
+        setProgressLabel('Creating new valuation...');
+        setProgressBar(18);
+    }
+    else if (msg.includes('Setting header fields')) {
         setProgressLabel('Setting quotation header fields...');
-        setProgressBar(20);
+        setProgressBar(22);
     }
     else if (msg.includes('Setting customized prices')) {
         setProgressLabel('Setting customized prices...');
-        setProgressBar(25);
+        setProgressBar(28);
     }
-
-    // Step: Create valuation
-    else if (msg.includes('Creating new valuation')) {
+    else if (msg.includes('Header fields set complete') || msg.includes('Customized prices set complete')) {
         completeStep('header');
-        setProgressLabel('Creating new valuation...');
-        setProgressBar(18);
+        setProgressBar(30);
     }
 
     // Step: Profiles
@@ -116,42 +125,34 @@ function parseLogForProgress(logEntry) {
         showCurrentItem();
     }
 
-    // Track individual profile/row fills via [FILL] messages
-    else if (msg.includes('[FILL]')) {
-        const refMatch = msg.match(/REF\s+(\d+)/);
-        const rowMatch = msg.match(/Row\s+(\d+)/i);
-        const qtyMatch = msg.match(/x\s+(\d+)/);
-        
-        if (refMatch) {
-            document.getElementById('current-item-ref').textContent = refMatch[1];
-        }
-        if (qtyMatch) {
-            document.getElementById('current-item-qty').textContent = qtyMatch[1];
-        }
-        if (rowMatch) {
-            const rowNum = parseInt(rowMatch[1]);
-            document.getElementById('current-item-counter').textContent = `${rowNum}/${totalItemCount}`;
-            const pct = 35 + ((rowNum / Math.max(totalItemCount, 1)) * 30);
-            setProgressBar(Math.min(pct, 65));
+    // Track individual profile rows: [ROW 0001] Processing: REF=2015, AMT=34
+    else if (msg.includes('[ROW ')) {
+        const refMatch = msg.match(/REF=(\S+)/);
+        const amtMatch = msg.match(/AMT=(\d+)/);
+        const rowMatch = msg.match(/\[ROW\s+(\d+)\]/);
+
+        if (msg.includes('Processing:')) {
+            showCurrentItem();
+            document.getElementById('current-item-title').textContent = 'Filling Profile...';
+            if (refMatch) document.getElementById('current-item-ref').textContent = refMatch[1];
+            if (amtMatch) document.getElementById('current-item-qty').textContent = amtMatch[1];
+            if (rowMatch) {
+                const rowNum = parseInt(rowMatch[1]);
+                document.getElementById('current-item-counter').textContent = `${rowNum}/${totalItemCount}`;
+                const pct = 35 + ((rowNum / Math.max(totalItemCount, 1)) * 30);
+                setProgressBar(Math.min(pct, 65));
+                setProgressLabel(`Filling profile ${rowNum}/${totalItemCount}...`);
+            }
         }
 
-        if (msg.includes('Finish1=')) {
-            const f1 = msg.match(/Finish1=([^,]+)/);
-            const s1 = msg.match(/Shade1=([^,\]]+)/);
-            if (f1) document.getElementById('current-item-finish').textContent = f1[1];
-            if (s1) document.getElementById('current-item-shade').textContent = s1[1];
-        }
-
-        if (level === 'success' || msg.includes('successfully') || msg.includes('amount:')) {
+        if (msg.includes('Amount calculated')) {
             filledCount++;
             document.getElementById('stat-filled').textContent = filledCount;
         }
-        if (msg.includes('missing amount') || msg.includes('unfilled')) {
+        if (msg.includes('Amount still not calculated')) {
             unfilledCount++;
             document.getElementById('stat-unfilled').textContent = unfilledCount;
         }
-
-        document.getElementById('current-item-title').textContent = 'Filling Profile...';
     }
 
     // Profile batch complete
@@ -162,6 +163,14 @@ function parseLogForProgress(logEntry) {
             filledCount = parseInt(m[1]);
             document.getElementById('stat-filled').textContent = filledCount;
         }
+        setProgressBar(65);
+        hideCurrentItem();
+    }
+
+    // Profile batch failed (but not cancelled)
+    else if (msg.includes('Profile batch fill failed') && !msg.includes('canceled')) {
+        const activeStep = document.querySelector('#step-profiles');
+        if (activeStep) { activeStep.classList.remove('active'); activeStep.classList.add('error'); }
         setProgressBar(65);
         hideCurrentItem();
     }
@@ -180,23 +189,25 @@ function parseLogForProgress(logEntry) {
         document.getElementById('current-item-title').textContent = 'Filling Accessory...';
     }
 
-    // Track accessory fills
-    else if (msg.includes('[ACC')) {
-        const refMatch = msg.match(/REF\s+(\d+)/);
-        const rowMatch = msg.match(/\[ACC\s+(\d+)\]/i);
-        
-        if (refMatch) {
-            document.getElementById('current-item-ref').textContent = refMatch[1];
+    // Track accessory fills: [ACC 0001] Processing: REF=12345, AMT=10
+    else if (msg.includes('[ACC ')) {
+        const refMatch = msg.match(/REF=(\S+)/);
+        const amtMatch = msg.match(/AMT=(\d+)/);
+        const rowMatch = msg.match(/\[ACC\s+(\d+)\]/);
+
+        if (msg.includes('Processing:')) {
+            if (refMatch) document.getElementById('current-item-ref').textContent = refMatch[1];
+            if (amtMatch) document.getElementById('current-item-qty').textContent = amtMatch[1];
+            if (rowMatch) {
+                document.getElementById('current-item-counter').textContent = `Acc ${rowMatch[1]}`;
+            }
         }
-        if (rowMatch) {
-            document.getElementById('current-item-counter').textContent = `Row ${rowMatch[1]}`;
-        }
-        
-        if (msg.includes('amount:') || msg.includes('calculated')) {
+
+        if (msg.includes('Amount calculated') || (level === 'success' && msg.includes('calculated'))) {
             filledCount++;
             document.getElementById('stat-filled').textContent = filledCount;
         }
-        if (msg.includes('not calculated') || msg.includes('unfilled')) {
+        if (msg.includes('Amount still not calculated') || msg.includes('not calculated after retries')) {
             unfilledCount++;
             document.getElementById('stat-unfilled').textContent = unfilledCount;
         }
@@ -205,6 +216,13 @@ function parseLogForProgress(logEntry) {
     else if (msg.includes('accessories filled successfully')) {
         completeStep('accessories');
         setProgressBar(85);
+        hideCurrentItem();
+    }
+
+    // Stopped by user
+    else if (msg.includes('stopped by user') || msg.includes('Automation was stopped')) {
+        setStatusBadge('Stopped', 'warning');
+        setProgressLabel('Automation stopped by user');
         hideCurrentItem();
     }
 
