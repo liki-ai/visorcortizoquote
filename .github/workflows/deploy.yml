@@ -29,27 +29,47 @@ jobs:
           target: "/var/www/visorquotation"
           strip_components: 1
 
-      - name: Restart service
+      - name: Setup service and restart
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
-            # Install Playwright browsers if not present
-            if [ ! -d "/var/www/visorquotation/.playwright" ]; then
-              cd /var/www/visorquotation
-              PLAYWRIGHT_BROWSERS_PATH=/var/www/visorquotation/.playwright \
-                pwsh -Command "& { ./playwright.ps1 install chromium --with-deps }" 2>/dev/null || true
+            # Install .NET 8 runtime if not present
+            if ! command -v dotnet &> /dev/null; then
+              echo "--- Installing .NET 8 ASP.NET Runtime ---"
+              apt-get update && apt-get install -y aspnetcore-runtime-8.0
             fi
+            echo "dotnet version: $(dotnet --info | head -2)"
 
-            # Ensure the service file exists
+            # Create systemd service if not present
             if [ ! -f /etc/systemd/system/visorquotation.service ]; then
-              echo "WARNING: systemd service not found. Run the one-time setup first."
-              exit 1
+              echo "--- Creating systemd service ---"
+              cat > /etc/systemd/system/visorquotation.service <<'EOF'
+            [Unit]
+            Description=Visor Quotation Web App
+            After=network.target
+
+            [Service]
+            WorkingDirectory=/var/www/visorquotation
+            ExecStart=/usr/bin/dotnet /var/www/visorquotation/VisorQuotationWebApp.dll --urls "http://0.0.0.0:5050"
+            Restart=always
+            RestartSec=10
+            SyslogIdentifier=visorquotation
+            Environment=ASPNETCORE_ENVIRONMENT=Production
+            Environment=DOTNET_PRINT_TELEMETRY_MESSAGE=false
+
+            [Install]
+            WantedBy=multi-user.target
+            EOF
+              systemctl daemon-reload
+              systemctl enable visorquotation
+              echo "Service created and enabled"
             fi
 
-            sudo systemctl daemon-reload
-            sudo systemctl restart visorquotation
+            # Restart the app
+            systemctl daemon-reload
+            systemctl restart visorquotation
             sleep 3
-            sudo systemctl status visorquotation --no-pager
+            systemctl status visorquotation --no-pager
