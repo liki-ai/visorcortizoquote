@@ -1,28 +1,26 @@
-// Automation and SignalR integration
+// Automation and SignalR integration with real-time progress dashboard
 
 let connection = null;
 let isRunning = false;
+let filledCount = 0;
+let unfilledCount = 0;
+let totalItemCount = 0;
 
-/**
- * Initialize SignalR connection
- */
 async function initSignalR() {
     connection = new signalR.HubConnectionBuilder()
         .withUrl("/automationHub")
         .withAutomaticReconnect()
         .build();
 
-    // Handle log messages
     connection.on("ReceiveLog", function (logEntry) {
         addLogEntry(logEntry);
+        parseLogForProgress(logEntry);
     });
 
-    // Handle progress updates
     connection.on("ReceiveProgress", function (current, total, status) {
         updateProgress(current, total, status);
     });
 
-    // Handle completion
     connection.on("ReceiveComplete", function (result) {
         handleComplete(result);
     });
@@ -32,15 +30,10 @@ async function initSignalR() {
         console.log("SignalR connected");
     } catch (err) {
         console.error("SignalR connection error:", err);
-        // Retry after delay
         setTimeout(initSignalR, 5000);
     }
 }
 
-/**
- * Add a log entry to the console
- * @param {object} logEntry - The log entry
- */
 function addLogEntry(logEntry) {
     const logContainer = document.getElementById('log-container');
     if (!logContainer) return;
@@ -62,109 +55,385 @@ function addLogEntry(logEntry) {
     logContainer.scrollTop = logContainer.scrollHeight;
 }
 
-/**
- * Get icon for log level
- * @param {string} level - Log level
- * @returns {string} Icon HTML
- */
 function getLogIcon(level) {
     switch (level.toLowerCase()) {
         case 'success': return '✓';
         case 'error': return '✗';
         case 'warning': return '⚠';
-        default: return 'ℹ';
+        default: return 'i';
     }
 }
 
-/**
- * Update progress bar
- * @param {number} current - Current item
- * @param {number} total - Total items
- * @param {string} status - Status message
- */
+function parseLogForProgress(logEntry) {
+    const msg = logEntry.message || '';
+    const level = (logEntry.level || '').toLowerCase();
+
+    // Step: Login
+    if (msg.includes('Navigating to Cortizo Center login')) {
+        setActiveStep('login');
+        setProgressLabel('Logging into Cortizo Center...');
+        setProgressBar(5);
+    }
+    else if (msg.includes('Login successful')) {
+        completeStep('login');
+        setProgressBar(15);
+    }
+
+    // Step: Header
+    else if (msg.includes('Setting header fields')) {
+        setActiveStep('header');
+        setProgressLabel('Setting quotation header fields...');
+        setProgressBar(20);
+    }
+    else if (msg.includes('Setting customized prices')) {
+        setProgressLabel('Setting customized prices...');
+        setProgressBar(25);
+    }
+
+    // Step: Create valuation
+    else if (msg.includes('Creating new valuation')) {
+        completeStep('header');
+        setProgressLabel('Creating new valuation...');
+        setProgressBar(18);
+    }
+
+    // Step: Profiles
+    else if (msg.includes('Ensuring') && msg.includes('rows are available')) {
+        setActiveStep('profiles');
+        setProgressLabel('Preparing profile grid rows...');
+        setProgressBar(30);
+        showFilledSummary();
+        const m = msg.match(/(\d+) rows/);
+        if (m) totalItemCount = parseInt(m[1]);
+    }
+    else if (msg.includes('Filling') && msg.includes('profile items')) {
+        setActiveStep('profiles');
+        const m = msg.match(/Filling (\d+)/);
+        if (m) totalItemCount = parseInt(m[1]);
+        document.getElementById('stat-total-items').textContent = totalItemCount;
+        setProgressLabel(`Filling ${totalItemCount} profiles...`);
+        setProgressBar(35);
+        showCurrentItem();
+    }
+
+    // Track individual profile/row fills via [FILL] messages
+    else if (msg.includes('[FILL]')) {
+        const refMatch = msg.match(/REF\s+(\d+)/);
+        const rowMatch = msg.match(/Row\s+(\d+)/i);
+        const qtyMatch = msg.match(/x\s+(\d+)/);
+        
+        if (refMatch) {
+            document.getElementById('current-item-ref').textContent = refMatch[1];
+        }
+        if (qtyMatch) {
+            document.getElementById('current-item-qty').textContent = qtyMatch[1];
+        }
+        if (rowMatch) {
+            const rowNum = parseInt(rowMatch[1]);
+            document.getElementById('current-item-counter').textContent = `${rowNum}/${totalItemCount}`;
+            const pct = 35 + ((rowNum / Math.max(totalItemCount, 1)) * 30);
+            setProgressBar(Math.min(pct, 65));
+        }
+
+        if (msg.includes('Finish1=')) {
+            const f1 = msg.match(/Finish1=([^,]+)/);
+            const s1 = msg.match(/Shade1=([^,\]]+)/);
+            if (f1) document.getElementById('current-item-finish').textContent = f1[1];
+            if (s1) document.getElementById('current-item-shade').textContent = s1[1];
+        }
+
+        if (level === 'success' || msg.includes('successfully') || msg.includes('amount:')) {
+            filledCount++;
+            document.getElementById('stat-filled').textContent = filledCount;
+        }
+        if (msg.includes('missing amount') || msg.includes('unfilled')) {
+            unfilledCount++;
+            document.getElementById('stat-unfilled').textContent = unfilledCount;
+        }
+
+        document.getElementById('current-item-title').textContent = 'Filling Profile...';
+    }
+
+    // Profile batch complete
+    else if (msg.includes('profile rows filled successfully')) {
+        completeStep('profiles');
+        const m = msg.match(/(\d+) profile/);
+        if (m) {
+            filledCount = parseInt(m[1]);
+            document.getElementById('stat-filled').textContent = filledCount;
+        }
+        setProgressBar(65);
+        hideCurrentItem();
+    }
+
+    // Step: Accessories
+    else if (msg.includes('Filling') && msg.includes('accessories')) {
+        setActiveStep('accessories');
+        const m = msg.match(/Filling (\d+)/);
+        let accCount = 0;
+        if (m) accCount = parseInt(m[1]);
+        totalItemCount += accCount;
+        document.getElementById('stat-total-items').textContent = totalItemCount;
+        setProgressLabel(`Filling ${accCount} accessories...`);
+        setProgressBar(70);
+        showCurrentItem();
+        document.getElementById('current-item-title').textContent = 'Filling Accessory...';
+    }
+
+    // Track accessory fills
+    else if (msg.includes('[ACC')) {
+        const refMatch = msg.match(/REF\s+(\d+)/);
+        const rowMatch = msg.match(/\[ACC\s+(\d+)\]/i);
+        
+        if (refMatch) {
+            document.getElementById('current-item-ref').textContent = refMatch[1];
+        }
+        if (rowMatch) {
+            document.getElementById('current-item-counter').textContent = `Row ${rowMatch[1]}`;
+        }
+        
+        if (msg.includes('amount:') || msg.includes('calculated')) {
+            filledCount++;
+            document.getElementById('stat-filled').textContent = filledCount;
+        }
+        if (msg.includes('not calculated') || msg.includes('unfilled')) {
+            unfilledCount++;
+            document.getElementById('stat-unfilled').textContent = unfilledCount;
+        }
+    }
+
+    else if (msg.includes('accessories filled successfully')) {
+        completeStep('accessories');
+        setProgressBar(85);
+        hideCurrentItem();
+    }
+
+    // Step: Total
+    else if (msg.includes('ESTIMATE TOTAL')) {
+        setActiveStep('total');
+        const totalMatch = msg.match(/([\d,.]+)\s*EUR/);
+        if (totalMatch) {
+            document.getElementById('stat-cortizo-total').textContent = totalMatch[1];
+        }
+        setProgressLabel('Extracting total...');
+        setProgressBar(90);
+    }
+
+    // Unfilled warnings
+    else if (msg.includes('UNFILLED PROFILES') || msg.includes('UNFILLED ACCESSORIES')) {
+        const countMatch = msg.match(/(\d+) items/);
+        if (countMatch) {
+            unfilledCount += parseInt(countMatch[1]);
+            document.getElementById('stat-unfilled').textContent = unfilledCount;
+        }
+    }
+
+    // Generating report
+    else if (msg.includes('Generating report')) {
+        setProgressLabel('Generating report...');
+        setProgressBar(93);
+    }
+
+    // Creating proforma
+    else if (msg.includes('Creating proforma')) {
+        setProgressLabel('Creating proforma...');
+        setProgressBar(95);
+    }
+
+    // Error
+    else if (level === 'error' && msg.includes('failed')) {
+        const activeStep = document.querySelector('.step-item.active');
+        if (activeStep) {
+            activeStep.classList.remove('active');
+            activeStep.classList.add('error');
+        }
+        setStatusBadge('Error', 'danger');
+    }
+
+    // Completed
+    else if (msg.includes('Automation completed')) {
+        completeStep('total');
+        setProgressBar(100);
+        setProgressLabel('Automation completed!');
+    }
+}
+
+function setActiveStep(stepId) {
+    const step = document.getElementById('step-' + stepId);
+    if (!step || step.classList.contains('completed')) return;
+    
+    document.querySelectorAll('.step-item.active').forEach(el => {
+        if (el.id !== 'step-' + stepId) {
+            el.classList.remove('active');
+            el.classList.add('completed');
+        }
+    });
+    step.classList.add('active');
+    setStatusBadge('Running', 'primary');
+}
+
+function completeStep(stepId) {
+    const step = document.getElementById('step-' + stepId);
+    if (step) {
+        step.classList.remove('active');
+        step.classList.add('completed');
+    }
+}
+
+function setProgressBar(percent) {
+    const bar = document.getElementById('progress-bar');
+    if (bar) {
+        bar.style.width = percent + '%';
+        if (percent >= 100) {
+            bar.classList.remove('progress-bar-striped');
+        } else {
+            bar.classList.add('progress-bar-striped');
+        }
+    }
+    const label = document.getElementById('progress-percent-label');
+    if (label) label.textContent = Math.round(percent) + '%';
+}
+
+function setProgressLabel(text) {
+    const el = document.getElementById('progress-step-label');
+    if (el) el.textContent = text;
+    const sub = document.getElementById('progress-text');
+    if (sub) sub.textContent = text;
+}
+
+function setStatusBadge(text, color) {
+    const badge = document.getElementById('automation-status-badge');
+    if (badge) {
+        badge.textContent = text;
+        badge.className = `badge bg-${color}`;
+    }
+}
+
+function showCurrentItem() {
+    const el = document.getElementById('current-item-detail');
+    if (el) el.style.display = 'block';
+}
+
+function hideCurrentItem() {
+    const el = document.getElementById('current-item-detail');
+    if (el) el.style.display = 'none';
+}
+
+function showFilledSummary() {
+    const el = document.getElementById('filled-items-summary');
+    if (el) el.style.display = 'block';
+}
+
 function updateProgress(current, total, status) {
-    const progressBar = document.getElementById('progress-bar');
-    const progressText = document.getElementById('progress-text');
-
-    if (progressBar) {
-        const percent = total > 0 ? (current / total) * 100 : 0;
-        progressBar.style.width = percent + '%';
-        progressBar.setAttribute('aria-valuenow', percent);
-    }
-
-    if (progressText) {
-        progressText.textContent = `${current}/${total} - ${status}`;
-    }
+    const percent = total > 0 ? (current / total) * 100 : 0;
+    setProgressBar(percent);
+    setProgressLabel(`${current}/${total} - ${status}`);
 }
 
-/**
- * Handle automation completion
- * @param {object} result - Automation result
- */
 function handleComplete(result) {
     isRunning = false;
 
-    // Update UI
     const confirmBtn = document.getElementById('btn-confirm');
     if (confirmBtn) {
         confirmBtn.disabled = false;
-        confirmBtn.innerHTML = '<i class="bi bi-play-fill"></i> Run Automation';
+        confirmBtn.innerHTML = '<i class="bi bi-play-fill me-2"></i>Run Cortizo Automation';
     }
 
-    // Show summary
+    hideCurrentItem();
+    showFilledSummary();
+
+    document.getElementById('stat-filled').textContent = result.successfulItems || filledCount;
+    document.getElementById('stat-unfilled').textContent =
+        (result.unfilledProfiles ? result.unfilledProfiles.length : 0) +
+        (result.unfilledAccessories ? result.unfilledAccessories.length : 0);
+    document.getElementById('stat-total-items').textContent = result.totalItems || totalItemCount;
+
+    if (result.cortizoTotal > 0) {
+        document.getElementById('stat-cortizo-total').textContent = result.cortizoTotal.toFixed(2);
+    }
+
+    if (result.success) {
+        setStatusBadge('Completed', 'success');
+        setProgressBar(100);
+        setProgressLabel('Automation completed successfully!');
+        completeStep('total');
+    } else {
+        setStatusBadge('Completed (issues)', 'warning');
+        setProgressBar(100);
+        setProgressLabel('Completed with issues - review unfilled items');
+    }
+
     const summaryEl = document.getElementById('automation-summary');
     if (summaryEl) {
         summaryEl.style.display = 'block';
+        let unfilledHtml = '';
+        
+        if (result.unfilledProfiles && result.unfilledProfiles.length > 0) {
+            unfilledHtml += '<div class="mt-2"><strong>Unfilled Profiles:</strong><ul class="mb-1">';
+            result.unfilledProfiles.forEach(item => {
+                unfilledHtml += `<li>Row ${item.rowNumber}: REF ${item.refNumber} x ${item.amount} - ${item.reason}</li>`;
+            });
+            unfilledHtml += '</ul></div>';
+        }
+        
+        if (result.unfilledAccessories && result.unfilledAccessories.length > 0) {
+            unfilledHtml += '<div class="mt-2"><strong>Unfilled Accessories:</strong><ul class="mb-1">';
+            result.unfilledAccessories.forEach(item => {
+                unfilledHtml += `<li>Row ${item.rowNumber}: REF ${item.refNumber} x ${item.amount} - ${item.reason}</li>`;
+            });
+            unfilledHtml += '</ul></div>';
+        }
+
         summaryEl.innerHTML = `
-            <div class="alert ${result.success ? 'alert-success' : 'alert-warning'}">
-                <h5>${result.success ? 'Automation Completed Successfully' : 'Automation Completed with Issues'}</h5>
-                <p>Processed: ${result.successfulItems}/${result.totalItems} items</p>
-                ${result.failedItems > 0 ? `<p class="text-danger">Failed: ${result.failedItems} items</p>` : ''}
-                ${result.screenshotPath ? `<a href="/Home/DownloadFile?path=${encodeURIComponent(result.screenshotPath)}" class="btn btn-sm btn-outline-primary me-2">Download Screenshot</a>` : ''}
-                ${result.tracePath ? `<a href="/Home/DownloadFile?path=${encodeURIComponent(result.tracePath)}" class="btn btn-sm btn-outline-primary">Download Trace</a>` : ''}
+            <div class="alert ${result.success ? 'alert-success' : 'alert-warning'} mb-0">
+                <h6 class="alert-heading mb-1">${result.success ? 'Automation Completed' : 'Completed with Issues'}</h6>
+                <small>Processed: ${result.successfulItems}/${result.totalItems} items
+                ${result.cortizoTotal > 0 ? ` | Cortizo Total: <strong>${result.cortizoTotal.toFixed(2)} EUR</strong>` : ''}</small>
+                ${unfilledHtml}
+                <div class="mt-2">
+                    ${result.screenshotPath ? `<a href="/Home/DownloadFile?path=${encodeURIComponent(result.screenshotPath)}" class="btn btn-sm btn-outline-primary me-1">Screenshot</a>` : ''}
+                    ${result.tracePath ? `<a href="/Home/DownloadFile?path=${encodeURIComponent(result.tracePath)}" class="btn btn-sm btn-outline-primary">Log File</a>` : ''}
+                </div>
             </div>
         `;
     }
 }
 
-/**
- * Start the automation
- */
 async function startAutomation() {
-    if (isRunning) {
-        console.log("Automation already running");
-        return;
-    }
+    if (isRunning) return;
 
     isRunning = true;
+    filledCount = 0;
+    unfilledCount = 0;
+    totalItemCount = 0;
 
-    // Clear previous logs
-    const logContainer = document.getElementById('log-container');
-    if (logContainer) {
-        logContainer.innerHTML = '';
-    }
+    // Reset dashboard
+    document.getElementById('log-container').innerHTML = '';
+    document.querySelectorAll('.step-item').forEach(el => {
+        el.classList.remove('active', 'completed', 'error');
+    });
+    setProgressBar(0);
+    setProgressLabel('Starting automation...');
+    setStatusBadge('Starting', 'info');
+    document.getElementById('stat-filled').textContent = '0';
+    document.getElementById('stat-unfilled').textContent = '0';
+    document.getElementById('stat-total-items').textContent = '0';
+    document.getElementById('stat-cortizo-total').textContent = '-';
+    hideCurrentItem();
+    showFilledSummary();
 
-    // Hide previous summary
     const summaryEl = document.getElementById('automation-summary');
-    if (summaryEl) {
-        summaryEl.style.display = 'none';
-    }
+    if (summaryEl) summaryEl.style.display = 'none';
 
-    // Update button state
     const confirmBtn = document.getElementById('btn-confirm');
     if (confirmBtn) {
         confirmBtn.disabled = true;
         confirmBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Running...';
     }
 
-    // Reset progress
-    updateProgress(0, 0, 'Starting...');
-
-    // Get form data
     const form = document.getElementById('automation-form');
     const formData = new FormData(form);
 
-    // Get selected profiles
     const selectedProfiles = [];
     document.querySelectorAll('.profile-checkbox:checked').forEach(cb => {
         selectedProfiles.push(parseInt(cb.value));
@@ -180,7 +449,6 @@ async function startAutomation() {
         const result = await response.json();
 
         if (!result.success && !isRunning) {
-            // Handle immediate failure
             handleComplete(result);
         }
     } catch (error) {
@@ -191,30 +459,21 @@ async function startAutomation() {
             message: 'Failed to start automation: ' + error.message
         });
         isRunning = false;
+        setStatusBadge('Error', 'danger');
 
-        const confirmBtn = document.getElementById('btn-confirm');
         if (confirmBtn) {
             confirmBtn.disabled = false;
-            confirmBtn.innerHTML = '<i class="bi bi-play-fill"></i> Run Automation';
+            confirmBtn.innerHTML = '<i class="bi bi-play-fill me-2"></i>Run Cortizo Automation';
         }
     }
 }
 
-/**
- * Escape HTML characters
- * @param {string} text - Text to escape
- * @returns {string} Escaped text
- */
 function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
 }
 
-/**
- * Select/deselect all profiles
- * @param {boolean} select - Whether to select all
- */
 function selectAllProfiles(select) {
     document.querySelectorAll('.profile-checkbox').forEach(cb => {
         cb.checked = select;
@@ -222,31 +481,21 @@ function selectAllProfiles(select) {
     updateSelectedCount();
 }
 
-/**
- * Update the selected count display
- */
 function updateSelectedCount() {
     const count = document.querySelectorAll('.profile-checkbox:checked').length;
     const total = document.querySelectorAll('.profile-checkbox').length;
     const countEl = document.getElementById('selected-count');
-    if (countEl) {
-        countEl.textContent = `${count}/${total} selected`;
-    }
+    if (countEl) countEl.textContent = `${count}/${total} selected`;
 }
 
-// Initialize on page load
 document.addEventListener('DOMContentLoaded', function () {
     initSignalR();
-
-    // Add change handler to checkboxes
     document.querySelectorAll('.profile-checkbox').forEach(cb => {
         cb.addEventListener('change', updateSelectedCount);
     });
-
     updateSelectedCount();
 });
 
-// Export functions
 window.automation = {
     start: startAutomation,
     selectAll: selectAllProfiles

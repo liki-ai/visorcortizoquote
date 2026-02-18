@@ -272,48 +272,24 @@
                 <span><i class="bi bi-gear me-2"></i>Cortizo Automation</span>
             </div>
             <div class="panel-card-body">
-                <div class="form-check mb-2">
-                    <input class="form-check-input" type="checkbox" id="generateReport" name="generateReport">
-                    <label class="form-check-label" for="generateReport">
-                        Generate Report after filling data
-                    </label>
-                </div>
-                <div class="form-check mb-3">
-                    <input class="form-check-input" type="checkbox" id="createProforma" name="createProforma">
-                    <label class="form-check-label" for="createProforma">
-                        Create Proforma after filling data
-                    </label>
-                </div>
-                <div class="progress-container">
-                    <div class="progress">
-                        <div class="progress-bar bg-success" id="progress-bar" style="width: 0%"></div>
+                <div class="row g-2 mb-3">
+                    <div class="col">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="generateReport" name="generateReport">
+                            <label class="form-check-label" for="generateReport">Generate Report</label>
+                        </div>
                     </div>
-                    <div id="progress-text" class="text-muted">Ready to run</div>
+                    <div class="col">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="createProforma" name="createProforma">
+                            <label class="form-check-label" for="createProforma">Create Proforma</label>
+                        </div>
+                    </div>
                 </div>
-                <button type="button" class="btn btn-success btn-confirm w-100 mt-3" id="btn-confirm" 
+                <button type="button" class="btn btn-success btn-confirm w-100" id="btn-confirm" 
                         onclick="automation.start()" disabled>
                     <i class="bi bi-play-fill me-2"></i>Run Cortizo Automation
                 </button>
-                <div id="automation-summary" class="mt-3" style="display: none;"></div>
-            </div>
-        </div>
-
-        <!-- Execution Log -->
-        <div class="panel-card">
-            <div class="panel-card-header">
-                <span><i class="bi bi-terminal me-2"></i>Execution Log</span>
-                <button class="btn btn-sm btn-outline-light" onclick="document.getElementById('log-container').innerHTML=''">
-                    Clear
-                </button>
-            </div>
-            <div class="panel-card-body p-0">
-                <div class="log-container" id="log-container">
-                    <div class="log-entry log-info">
-                        <span class="log-time">--:--:--</span>
-                        <span class="log-icon">ℹ</span>
-                        <span class="log-message">Ready. Upload a PDF and click "Run Automation" to start.</span>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
@@ -466,53 +442,132 @@
             </div>
         </div>
 
-        <!-- PDF Preview -->
-        <div class="panel-card pdf-preview">
+        <!-- Automation Progress Dashboard -->
+        <div class="panel-card">
             <div class="panel-card-header">
-                <span><i class="bi bi-file-earmark-pdf me-2"></i>PDF Preview</span>
+                <span><i class="bi bi-speedometer2 me-2"></i>Automation Progress</span>
+                <span id="automation-status-badge" class="badge bg-secondary">Idle</span>
             </div>
-            <div class="pdf-toolbar">
-                <button class="btn btn-sm btn-outline-secondary" onclick="pdfViewer.prevPage()" title="Previous Page">
-                    <i class="bi bi-chevron-left"></i>
-                </button>
-                <span>Page <span id="page-num">-</span> of <span id="page-count">-</span></span>
-                <button class="btn btn-sm btn-outline-secondary" onclick="pdfViewer.nextPage()" title="Next Page">
-                    <i class="bi bi-chevron-right"></i>
-                </button>
-                <span class="ms-3"></span>
-                <button class="btn btn-sm btn-outline-secondary" onclick="pdfViewer.zoomOut()" title="Zoom Out">
-                    <i class="bi bi-zoom-out"></i>
-                </button>
-                <button class="btn btn-sm btn-outline-secondary" onclick="pdfViewer.zoomIn()" title="Zoom In">
-                    <i class="bi bi-zoom-in"></i>
-                </button>
-            </div>
-            <div class="pdf-container" id="pdf-container">
-                @if (Model.ParsedPdf != null)
-                {
-                    <canvas id="pdf-canvas"></canvas>
-                }
-                else
-                {
-                    <div class="pdf-placeholder" id="pdf-placeholder">
-                        <i class="bi bi-file-earmark-pdf"></i>
-                        <p>Upload a PDF to preview it here</p>
+            <div class="panel-card-body">
+                <!-- Overall Progress -->
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <small class="fw-bold" id="progress-step-label">Waiting to start...</small>
+                        <small id="progress-percent-label">0%</small>
                     </div>
-                    <canvas id="pdf-canvas" style="display: none;"></canvas>
-                }
+                    <div class="progress" style="height: 22px;">
+                        <div class="progress-bar progress-bar-striped bg-success" id="progress-bar" 
+                             role="progressbar" style="width: 0%"></div>
+                    </div>
+                    <small class="text-muted" id="progress-text">Upload a PDF and click Run to begin</small>
+                </div>
+
+                <!-- Step Indicators -->
+                <div class="step-tracker" id="step-tracker">
+                    <div class="step-item" id="step-login" data-step="login">
+                        <div class="step-icon"><i class="bi bi-person-lock"></i></div>
+                        <div class="step-label">Login</div>
+                    </div>
+                    <div class="step-item" id="step-header" data-step="header">
+                        <div class="step-icon"><i class="bi bi-card-heading"></i></div>
+                        <div class="step-label">Header</div>
+                    </div>
+                    <div class="step-item" id="step-profiles" data-step="profiles">
+                        <div class="step-icon"><i class="bi bi-list-columns"></i></div>
+                        <div class="step-label">Profiles</div>
+                    </div>
+                    <div class="step-item" id="step-accessories" data-step="accessories">
+                        <div class="step-icon"><i class="bi bi-box-seam"></i></div>
+                        <div class="step-label">Accessories</div>
+                    </div>
+                    <div class="step-item" id="step-total" data-step="total">
+                        <div class="step-icon"><i class="bi bi-calculator"></i></div>
+                        <div class="step-label">Total</div>
+                    </div>
+                </div>
+
+                <!-- Current Item Detail -->
+                <div id="current-item-detail" class="current-item-card" style="display: none;">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span class="fw-bold" id="current-item-title">Filling item...</span>
+                        <span class="badge bg-primary" id="current-item-counter">0/0</span>
+                    </div>
+                    <table class="table table-sm table-bordered mb-0" style="font-size: 12px;">
+                        <tbody>
+                            <tr>
+                                <td class="fw-bold" style="width: 80px;">REF</td>
+                                <td id="current-item-ref">-</td>
+                                <td class="fw-bold" style="width: 50px;">QTY</td>
+                                <td id="current-item-qty" style="width: 50px;">-</td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">Finish</td>
+                                <td id="current-item-finish">-</td>
+                                <td class="fw-bold">Shade</td>
+                                <td id="current-item-shade">-</td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">Desc</td>
+                                <td colspan="3" id="current-item-desc">-</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Filled Items Summary -->
+                <div id="filled-items-summary" class="mt-3" style="display: none;">
+                    <div class="d-flex gap-3 mb-2">
+                        <div class="stat-box stat-success">
+                            <div class="stat-number" id="stat-filled">0</div>
+                            <div class="stat-label">Filled</div>
+                        </div>
+                        <div class="stat-box stat-warning">
+                            <div class="stat-number" id="stat-unfilled">0</div>
+                            <div class="stat-label">Unfilled</div>
+                        </div>
+                        <div class="stat-box stat-info">
+                            <div class="stat-number" id="stat-total-items">0</div>
+                            <div class="stat-label">Total</div>
+                        </div>
+                        <div class="stat-box stat-primary">
+                            <div class="stat-number" id="stat-cortizo-total">-</div>
+                            <div class="stat-label">EUR Total</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Automation Result -->
+                <div id="automation-summary" class="mt-3" style="display: none;"></div>
             </div>
-            <div id="pdf-error" class="alert alert-danger m-3" style="display: none;"></div>
+        </div>
+
+        <!-- Execution Log (Real-time) -->
+        <div class="panel-card" style="flex: 1;">
+            <div class="panel-card-header">
+                <span><i class="bi bi-terminal me-2"></i>Live Log</span>
+                <div>
+                    <button class="btn btn-sm btn-outline-light me-1" onclick="document.getElementById('log-container').scrollTop = document.getElementById('log-container').scrollHeight" title="Scroll to bottom">
+                        <i class="bi bi-arrow-down"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-light" onclick="document.getElementById('log-container').innerHTML=''">
+                        Clear
+                    </button>
+                </div>
+            </div>
+            <div class="panel-card-body p-0">
+                <div class="log-container" id="log-container">
+                    <div class="log-entry log-info">
+                        <span class="log-time">--:--:--</span>
+                        <span class="log-icon">i</span>
+                        <span class="log-message">Ready. Upload a PDF and click "Run Automation" to start.</span>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
 @section Scripts {
-    <!-- PDF.js from CDN (can be self-hosted later) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-    <script>
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-    </script>
-    
     <!-- SignalR -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.0/signalr.min.js"></script>
     
@@ -520,12 +575,9 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     
     <!-- Custom Scripts -->
-    <script src="~/js/pdf-viewer.js"></script>
     <script src="~/js/automation.js"></script>
     
     <script>
-        // Initialize PDF viewer
-        pdfViewer.init('pdf-canvas');
         
         // File upload handling
         const uploadArea = document.getElementById('upload-area');
@@ -600,11 +652,6 @@
                     
                     // Update accessories & hardware grid
                     updateAccessoriesGrid(result.accessories);
-                    
-                    // Load PDF preview
-                    document.getElementById('pdf-placeholder')?.remove();
-                    document.getElementById('pdf-canvas').style.display = 'block';
-                    pdfViewer.load(result.pdfUrl);
                     
                     // Enable confirm button
                     confirmBtn.disabled = false;
@@ -730,13 +777,10 @@
             setTimeout(() => errorEl.classList.add('d-none'), 5000);
         }
         
-        // Load existing PDF if available
+        // Enable confirm button if data already loaded
         @if (!string.IsNullOrEmpty(Model.UploadedFileName))
         {
             <text>
-            document.getElementById('pdf-placeholder')?.remove();
-            document.getElementById('pdf-canvas').style.display = 'block';
-            // PDF URL would need to be passed from the model
             confirmBtn.disabled = false;
             </text>
         }

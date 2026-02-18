@@ -135,74 +135,140 @@ html {
     padding: 6px 10px;
 }
 
-/* PDF preview */
-.pdf-preview {
-    flex: 1;
+/* Step Tracker */
+.step-tracker {
     display: flex;
-    flex-direction: column;
-    min-height: 500px;
-}
-
-.pdf-toolbar {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 15px;
-    padding: 10px;
-    background: #f8f9fa;
-    border-bottom: 1px solid #dee2e6;
-}
-
-.pdf-toolbar button {
-    padding: 5px 10px;
-}
-
-.pdf-container {
-    flex: 1;
-    overflow: auto;
-    display: flex;
-    justify-content: center;
-    padding: 15px;
-    background: #e9ecef;
-}
-
-.pdf-container.loading {
+    justify-content: space-between;
+    margin-bottom: 15px;
+    padding: 10px 0;
     position: relative;
 }
 
-.pdf-container.loading::after {
-    content: "Loading PDF...";
+.step-tracker::before {
+    content: '';
     position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: rgba(255, 255, 255, 0.9);
-    padding: 20px 40px;
-    border-radius: 8px;
-    font-weight: 600;
+    top: 28px;
+    left: 30px;
+    right: 30px;
+    height: 3px;
+    background: #dee2e6;
+    z-index: 0;
 }
 
-#pdf-canvas {
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-.pdf-placeholder {
+.step-item {
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
-    height: 100%;
+    z-index: 1;
+    flex: 1;
+}
+
+.step-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #e9ecef;
+    border: 2px solid #dee2e6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    color: #6c757d;
+    transition: all 0.3s ease;
+}
+
+.step-label {
+    font-size: 11px;
+    margin-top: 5px;
+    color: #6c757d;
+    font-weight: 500;
+}
+
+.step-item.active .step-icon {
+    background: #0d6efd;
+    border-color: #0d6efd;
+    color: #fff;
+    box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.2);
+    animation: pulse-step 1.5s infinite;
+}
+
+.step-item.active .step-label {
+    color: #0d6efd;
+    font-weight: 700;
+}
+
+.step-item.completed .step-icon {
+    background: #198754;
+    border-color: #198754;
+    color: #fff;
+}
+
+.step-item.completed .step-label {
+    color: #198754;
+}
+
+.step-item.error .step-icon {
+    background: #dc3545;
+    border-color: #dc3545;
+    color: #fff;
+}
+
+.step-item.error .step-label {
+    color: #dc3545;
+}
+
+@keyframes pulse-step {
+    0%, 100% { box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.15); }
+    50% { box-shadow: 0 0 0 8px rgba(13, 110, 253, 0.08); }
+}
+
+/* Current Item Card */
+.current-item-card {
+    background: #f0f4ff;
+    border: 1px solid #b6d4fe;
+    border-radius: 6px;
+    padding: 10px 12px;
+    margin-top: 10px;
+}
+
+.current-item-card .table {
+    background: #fff;
+}
+
+/* Stat Boxes */
+.stat-box {
+    flex: 1;
+    text-align: center;
+    padding: 8px 5px;
+    border-radius: 6px;
+    border: 1px solid #dee2e6;
+}
+
+.stat-number {
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.stat-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
     color: #6c757d;
 }
 
-.pdf-placeholder i {
-    font-size: 64px;
-    margin-bottom: 15px;
-}
+.stat-success { background: #d1e7dd; border-color: #a3cfbb; }
+.stat-success .stat-number { color: #146c43; }
+.stat-warning { background: #fff3cd; border-color: #ffe69c; }
+.stat-warning .stat-number { color: #997404; }
+.stat-info { background: #cff4fc; border-color: #9eeaf9; }
+.stat-info .stat-number { color: #087990; }
+.stat-primary { background: #cfe2ff; border-color: #9ec5fe; }
+.stat-primary .stat-number { color: #052c65; }
 
 /* Automation log */
 .log-container {
-    height: 200px;
+    height: 350px;
     overflow-y: auto;
     background: #1e1e1e;
     color: #d4d4d4;
