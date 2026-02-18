@@ -98,11 +98,15 @@ public class CortizoAutomationService : IAsyncDisposable
             // Log state after login
             await LogPageStateAsync("After login");
 
+            cancellationToken.ThrowIfCancellationRequested();
+
             // Step 2: Navigate to Quotations
             Log(result, AutomationLogLevel.Info, "Navigating to Quotations / Online Orders...");
             await NavigateToQuotationsAsync();
             await LogPageStateAsync("After navigating to quotations");
             await LogAvailableSelectorsAsync();
+
+            cancellationToken.ThrowIfCancellationRequested();
 
             // Step 3: Create new valuation
             Log(result, AutomationLogLevel.Info, "Creating new valuation...");
@@ -119,6 +123,8 @@ public class CortizoAutomationService : IAsyncDisposable
             await SetCustomizedPricesAsync();
             await LogPageStateAsync("After setting customized prices");
 
+            cancellationToken.ThrowIfCancellationRequested();
+
             // Step 5: Ensure enough rows exist
             var selectedProfiles = profiles.Where(p => p.IsSelected).ToList();
             Log(result, AutomationLogLevel.Info, $"Ensuring {selectedProfiles.Count} rows are available in the grid...");
@@ -129,7 +135,7 @@ public class CortizoAutomationService : IAsyncDisposable
             
             try
             {
-                await FillAllProfileRowsFastAsync(selectedProfiles, result);
+                await FillAllProfileRowsFastAsync(selectedProfiles, result, cancellationToken);
                 result.SuccessfulItems = selectedProfiles.Count;
                 Log(result, AutomationLogLevel.Success, $"All {selectedProfiles.Count} profile rows filled successfully");
             }
@@ -145,7 +151,7 @@ public class CortizoAutomationService : IAsyncDisposable
                 Log(result, AutomationLogLevel.Info, $"Filling {selectedAccessories.Count} accessories...");
                 try
                 {
-                    await FillAccessoriesAsync(selectedAccessories, result);
+                    await FillAccessoriesAsync(selectedAccessories, result, cancellationToken);
                     result.SuccessfulItems += selectedAccessories.Count;
                     Log(result, AutomationLogLevel.Success, $"All {selectedAccessories.Count} accessories filled successfully");
                 }
@@ -490,7 +496,7 @@ public class CortizoAutomationService : IAsyncDisposable
     /// <summary>
     /// Fill all profile rows - uses header values as fallback for finish/shade
     /// </summary>
-    private async Task FillAllProfileRowsFastAsync(List<ProfileItem> profiles, AutomationRunResult result)
+    private async Task FillAllProfileRowsFastAsync(List<ProfileItem> profiles, AutomationRunResult result, CancellationToken cancellationToken = default)
     {
         WriteToLogFile(AutomationLogLevel.Info, $"[FILL] Starting fill for {profiles.Count} profiles...");
         
@@ -517,6 +523,8 @@ public class CortizoAutomationService : IAsyncDisposable
         // Process each row sequentially to ensure proper validation and price calculation
         for (int i = 0; i < profiles.Count; i++)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             var profile = profiles[i];
             var rowNum = (i + 1).ToString("D4");
             
@@ -781,7 +789,7 @@ public class CortizoAutomationService : IAsyncDisposable
     /// <summary>
     /// Fill accessories section on the Cortizo page
     /// </summary>
-    private async Task FillAccessoriesAsync(List<AccessoryItem> accessories, AutomationRunResult result)
+    private async Task FillAccessoriesAsync(List<AccessoryItem> accessories, AutomationRunResult result, CancellationToken cancellationToken = default)
     {
         WriteToLogFile(AutomationLogLevel.Info, $"[ACCESSORIES] Starting fill for {accessories.Count} accessories...");
         
@@ -824,6 +832,8 @@ public class CortizoAutomationService : IAsyncDisposable
         // Process each accessory
         for (int i = 0; i < accessories.Count; i++)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             var accessory = accessories[i];
             var rowNum = (i + 1).ToString("D4");
             

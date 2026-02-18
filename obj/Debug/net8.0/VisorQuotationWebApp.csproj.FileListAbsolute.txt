@@ -831,3 +831,4 @@ C:\Lirim\VisorQuotationWebApp\obj\Debug\net8.0\VisorQuo.F49C4853.Up2Date
 C:\Lirim\VisorQuotationWebApp\obj\Debug\net8.0\VisorQuotationWebApp.genruntimeconfig.cache
 C:\Lirim\VisorQuotationWebApp\obj\Debug\net8.0\ref\VisorQuotationWebApp.dll
 C:\Lirim\VisorQuotationWebApp\obj\Debug\net8.0\VisorQuotationWebApp.sourcelink.json
+C:\Lirim\VisorQuotationWebApp\bin\Debug\net8.0\appsettings.Production.json

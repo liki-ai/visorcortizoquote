@@ -164,101 +164,103 @@
             </div>
         </div>
 
-        <!-- Excel Price Calculation (Offline) -->
+        <!-- Excel Price Calculation (Offline) - Accordion -->
         <div class="panel-card">
-            <div class="panel-card-header">
-                <span><i class="bi bi-file-earmark-excel me-2"></i>Offline Price Calculation</span>
+            <div class="panel-card-header" style="cursor: pointer;" data-bs-toggle="collapse" data-bs-target="#excelCalcBody" aria-expanded="false">
+                <span><i class="bi bi-file-earmark-excel me-2"></i>Offline Price Calculation <i class="bi bi-chevron-down ms-2 small" id="excel-chevron"></i></span>
                 <span id="excel-status" class="badge bg-secondary">Not Loaded</span>
             </div>
-            <div class="panel-card-body">
-                <p class="text-muted small mb-3">Load Excel price lists to calculate totals without Cortizo automation.</p>
-                
-                <div class="mb-3">
-                    <label class="form-label small fw-bold">Profile Prices Excel:</label>
-                    <div class="input-group input-group-sm">
-                        <input type="file" class="form-control" id="profile-excel" accept=".xlsx,.xls">
-                        <button class="btn btn-outline-secondary" type="button" onclick="excelCalc.loadProfilePrices()">
-                            <i class="bi bi-upload"></i>
-                        </button>
+            <div class="collapse" id="excelCalcBody">
+                <div class="panel-card-body">
+                    <p class="text-muted small mb-3">Load Excel price lists to calculate totals without Cortizo automation.</p>
+                    
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Profile Prices Excel:</label>
+                        <div class="input-group input-group-sm">
+                            <input type="file" class="form-control" id="profile-excel" accept=".xlsx,.xls">
+                            <button class="btn btn-outline-secondary" type="button" onclick="excelCalc.loadProfilePrices()">
+                                <i class="bi bi-upload"></i>
+                            </button>
+                        </div>
+                        <small id="profile-excel-status" class="text-muted"></small>
                     </div>
-                    <small id="profile-excel-status" class="text-muted"></small>
-                </div>
-                
-                <div class="mb-3">
-                    <label class="form-label small fw-bold">Accessory Prices Excel:</label>
-                    <div class="input-group input-group-sm">
-                        <input type="file" class="form-control" id="accessory-excel" accept=".xlsx,.xls">
-                        <button class="btn btn-outline-secondary" type="button" onclick="excelCalc.loadAccessoryPrices()">
-                            <i class="bi bi-upload"></i>
-                        </button>
+                    
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Accessory Prices Excel:</label>
+                        <div class="input-group input-group-sm">
+                            <input type="file" class="form-control" id="accessory-excel" accept=".xlsx,.xls">
+                            <button class="btn btn-outline-secondary" type="button" onclick="excelCalc.loadAccessoryPrices()">
+                                <i class="bi bi-upload"></i>
+                            </button>
+                        </div>
+                        <small id="accessory-excel-status" class="text-muted"></small>
                     </div>
-                    <small id="accessory-excel-status" class="text-muted"></small>
-                </div>
 
-                <hr class="my-2">
-                
-                <div class="row g-2 mb-3">
-                    <div class="col-6">
-                        <label class="form-label small">Custom With Break (€/kg):</label>
-                        <input type="number" step="0.01" class="form-control form-control-sm" id="custom-with-break" value="7.56">
-                    </div>
-                    <div class="col-6">
-                        <label class="form-label small">Custom Without Break (€/kg):</label>
-                        <input type="number" step="0.01" class="form-control form-control-sm" id="custom-without-break" value="5.16">
-                    </div>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label small">Accessory Discount (%):</label>
-                    <input type="number" step="0.1" class="form-control form-control-sm" id="accessory-discount" value="10">
-                </div>
-                
-                <button type="button" class="btn btn-primary w-100" id="btn-calculate-excel" 
-                        onclick="excelCalc.calculateTotals()" disabled>
-                    <i class="bi bi-calculator me-2"></i>Calculate Totals from Excel
-                </button>
-                
-                <div id="excel-calculation-result" class="mt-3" style="display: none;">
-                    <div class="card bg-light">
-                        <div class="card-body p-2">
-                            <div class="d-flex justify-content-between">
-                                <span>Profiles Total:</span>
-                                <strong id="excel-profiles-total">€0.00</strong>
-                            </div>
-                            <div class="d-flex justify-content-between">
-                                <span>Accessories Total:</span>
-                                <strong id="excel-accessories-total">€0.00</strong>
-                            </div>
-                            <hr class="my-1">
-                            <div class="d-flex justify-content-between">
-                                <span class="fw-bold">Grand Total:</span>
-                                <strong id="excel-grand-total" class="text-success">€0.00</strong>
-                            </div>
-                            <div class="mt-2">
-                                <small id="excel-match-summary" class="text-muted"></small>
-                            </div>
+                    <hr class="my-2">
+                    
+                    <div class="row g-2 mb-3">
+                        <div class="col-6">
+                            <label class="form-label small">Custom With Break (€/kg):</label>
+                            <input type="number" step="0.01" class="form-control form-control-sm" id="custom-with-break" value="7.56">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small">Custom Without Break (€/kg):</label>
+                            <input type="number" step="0.01" class="form-control form-control-sm" id="custom-without-break" value="5.16">
                         </div>
                     </div>
-                    <!-- Missing items table -->
-                    <div id="missing-items-section" class="mt-2" style="display: none;">
-                        <div class="card border-warning">
-                            <div class="card-header bg-warning bg-opacity-25 py-2">
-                                <strong class="text-dark"><i class="bi bi-exclamation-triangle me-1"></i>Missing Items - Need Manual Price</strong>
+                    <div class="mb-3">
+                        <label class="form-label small">Accessory Discount (%):</label>
+                        <input type="number" step="0.1" class="form-control form-control-sm" id="accessory-discount" value="10">
+                    </div>
+                    
+                    <button type="button" class="btn btn-primary w-100" id="btn-calculate-excel" 
+                            onclick="excelCalc.calculateTotals()" disabled>
+                        <i class="bi bi-calculator me-2"></i>Calculate Totals from Excel
+                    </button>
+                    
+                    <div id="excel-calculation-result" class="mt-3" style="display: none;">
+                        <div class="card bg-light">
+                            <div class="card-body p-2">
+                                <div class="d-flex justify-content-between">
+                                    <span>Profiles Total:</span>
+                                    <strong id="excel-profiles-total">€0.00</strong>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span>Accessories Total:</span>
+                                    <strong id="excel-accessories-total">€0.00</strong>
+                                </div>
+                                <hr class="my-1">
+                                <div class="d-flex justify-content-between">
+                                    <span class="fw-bold">Grand Total:</span>
+                                    <strong id="excel-grand-total" class="text-success">€0.00</strong>
+                                </div>
+                                <div class="mt-2">
+                                    <small id="excel-match-summary" class="text-muted"></small>
+                                </div>
                             </div>
-                            <div class="card-body p-0">
-                                <table class="table table-sm table-hover mb-0" id="missing-items-table">
-                                    <thead>
-                                        <tr class="table-warning">
-                                            <th>Type</th>
-                                            <th>REF</th>
-                                            <th>QTY</th>
-                                            <th>Description</th>
-                                            <th>Finish</th>
-                                            <th>Reason</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="missing-items-tbody">
-                                    </tbody>
-                                </table>
+                        </div>
+                        <!-- Missing items table -->
+                        <div id="missing-items-section" class="mt-2" style="display: none;">
+                            <div class="card border-warning">
+                                <div class="card-header bg-warning bg-opacity-25 py-2">
+                                    <strong class="text-dark"><i class="bi bi-exclamation-triangle me-1"></i>Missing Items - Need Manual Price</strong>
+                                </div>
+                                <div class="card-body p-0">
+                                    <table class="table table-sm table-hover mb-0" id="missing-items-table">
+                                        <thead>
+                                            <tr class="table-warning">
+                                                <th>Type</th>
+                                                <th>REF</th>
+                                                <th>QTY</th>
+                                                <th>Description</th>
+                                                <th>Finish</th>
+                                                <th>Reason</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="missing-items-tbody">
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -286,10 +288,16 @@
                         </div>
                     </div>
                 </div>
-                <button type="button" class="btn btn-success btn-confirm w-100" id="btn-confirm" 
-                        onclick="automation.start()" disabled>
-                    <i class="bi bi-play-fill me-2"></i>Run Cortizo Automation
-                </button>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-success btn-confirm flex-grow-1" id="btn-confirm" 
+                            onclick="automation.start()" disabled>
+                        <i class="bi bi-play-fill me-2"></i>Run Automation
+                    </button>
+                    <button type="button" class="btn btn-danger" id="btn-stop" 
+                            onclick="automation.stop()" disabled style="display: none;">
+                        <i class="bi bi-stop-fill me-1"></i>Stop
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -1024,5 +1032,19 @@
         
         // Check Excel status on page load
         excelCalc.checkStatus();
+
+        // Accordion chevron rotation
+        const excelBody = document.getElementById('excelCalcBody');
+        const excelChevron = document.getElementById('excel-chevron');
+        if (excelBody && excelChevron) {
+            excelBody.addEventListener('show.bs.collapse', () => {
+                excelChevron.classList.remove('bi-chevron-down');
+                excelChevron.classList.add('bi-chevron-up');
+            });
+            excelBody.addEventListener('hide.bs.collapse', () => {
+                excelChevron.classList.remove('bi-chevron-up');
+                excelChevron.classList.add('bi-chevron-down');
+            });
+        }
     </script>
 }

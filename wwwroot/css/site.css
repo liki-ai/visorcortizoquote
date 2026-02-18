@@ -54,6 +54,19 @@ html {
     align-items: center;
 }
 
+.panel-card-header[data-bs-toggle="collapse"] {
+    cursor: pointer;
+    user-select: none;
+}
+
+.panel-card-header[data-bs-toggle="collapse"]:hover {
+    background: #224b73;
+}
+
+#excel-chevron {
+    transition: transform 0.2s ease;
+}
+
 .panel-card-body {
     padding: 16px;
 }

@@ -23,6 +23,7 @@ public class HomeController : Controller
     private static readonly Dictionary<string, string> UploadedFiles = new();
     private static readonly Dictionary<string, QuotationViewModel> SavedViewModels = new();
     private static readonly Dictionary<string, decimal> CortizoTotals = new();
+    private static CancellationTokenSource? _automationCts;
 
     public HomeController(
         ILogger<HomeController> logger,
@@ -181,6 +182,11 @@ public class HomeController : Controller
         // Get accessories (all selected by default)
         var accessories = parsedPdf.Accessories.ToList();
 
+        // Cancel any previous automation and create a new token
+        _automationCts?.Cancel();
+        _automationCts = new CancellationTokenSource();
+        var cts = _automationCts;
+
         // Run automation in background - capture services for closure
         var loggerFactory = _loggerFactory;
         var automationConfig = _automationConfig;
@@ -207,12 +213,32 @@ public class HomeController : Controller
                 Details = $"View at /Home/Logs"
             });
 
-            var result = await automationService.RunAutomationAsync(credentials, viewModel, profiles, accessories);
+            try
+            {
+                var result = await automationService.RunAutomationAsync(credentials, viewModel, profiles, accessories, cts.Token);
 
-            // Add log file path to result
-            result.TracePath = automationService.LogFilePath;
+                // Add log file path to result
+                result.TracePath = automationService.LogFilePath;
 
-            await hubContext.Clients.All.SendAsync("ReceiveComplete", result);
+                await hubContext.Clients.All.SendAsync("ReceiveComplete", result);
+            }
+            catch (OperationCanceledException)
+            {
+                await hubContext.Clients.All.SendAsync("ReceiveLog", new AutomationLogEntry
+                {
+                    Timestamp = DateTime.Now,
+                    Level = AutomationLogLevel.Warning,
+                    Message = "Automation was stopped by user"
+                });
+
+                var cancelResult = new AutomationRunResult
+                {
+                    Success = false,
+                    ErrorMessage = "Automation stopped by user",
+                    TracePath = automationService.LogFilePath
+                };
+                await hubContext.Clients.All.SendAsync("ReceiveComplete", cancelResult);
+            }
         });
 
         return Json(new { success = true, message = "Automation started" });
@@ -235,6 +261,18 @@ public class HomeController : Controller
             contentType = "application/zip";
 
         return PhysicalFile(path, contentType, fileName);
+    }
+
+    [HttpPost]
+    public IActionResult StopAutomation()
+    {
+        if (_automationCts != null && !_automationCts.IsCancellationRequested)
+        {
+            _automationCts.Cancel();
+            _logger.LogInformation("Automation stop requested by user");
+            return Json(new { success = true, message = "Stop signal sent" });
+        }
+        return Json(new { success = false, message = "No automation running" });
     }
 
     [HttpGet]

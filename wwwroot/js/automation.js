@@ -333,10 +333,11 @@ function updateProgress(current, total, status) {
 function handleComplete(result) {
     isRunning = false;
 
+    hideStopButton();
     const confirmBtn = document.getElementById('btn-confirm');
     if (confirmBtn) {
         confirmBtn.disabled = false;
-        confirmBtn.innerHTML = '<i class="bi bi-play-fill me-2"></i>Run Cortizo Automation';
+        confirmBtn.innerHTML = '<i class="bi bi-play-fill me-2"></i>Run Automation';
     }
 
     hideCurrentItem();
@@ -399,6 +400,44 @@ function handleComplete(result) {
     }
 }
 
+async function stopAutomation() {
+    if (!isRunning) return;
+
+    const stopBtn = document.getElementById('btn-stop');
+    if (stopBtn) {
+        stopBtn.disabled = true;
+        stopBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Stopping...';
+    }
+
+    try {
+        await fetch('/Home/StopAutomation', { method: 'POST' });
+        addLogEntry({
+            timestamp: new Date().toISOString(),
+            level: 'Warning',
+            message: 'Stop requested - waiting for current operation to finish...'
+        });
+        setStatusBadge('Stopping', 'warning');
+    } catch (error) {
+        console.error('Failed to stop automation:', error);
+    }
+}
+
+function showStopButton() {
+    const stopBtn = document.getElementById('btn-stop');
+    if (stopBtn) {
+        stopBtn.style.display = 'block';
+        stopBtn.disabled = false;
+        stopBtn.innerHTML = '<i class="bi bi-stop-fill me-1"></i>Stop';
+    }
+}
+
+function hideStopButton() {
+    const stopBtn = document.getElementById('btn-stop');
+    if (stopBtn) {
+        stopBtn.style.display = 'none';
+    }
+}
+
 async function startAutomation() {
     if (isRunning) return;
 
@@ -430,6 +469,8 @@ async function startAutomation() {
         confirmBtn.disabled = true;
         confirmBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Running...';
     }
+
+    showStopButton();
 
     const form = document.getElementById('automation-form');
     const formData = new FormData(form);
@@ -498,5 +539,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
 window.automation = {
     start: startAutomation,
+    stop: stopAutomation,
     selectAll: selectAllProfiles
 };
