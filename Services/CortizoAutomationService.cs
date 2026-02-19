@@ -841,147 +841,85 @@ public class CortizoAutomationService : IAsyncDisposable
             
             WriteToLogFile(AutomationLogLevel.Info, $"[ACC {rowNum}] Processing: REF={accessory.RefNumber}, AMT={accessory.Amount}, DESC={accessory.Description}");
             
-            // Set Reference - using correct ID: txtReferenciaAcc_XXXX
-            var setRefScript = $@"
-                (function() {{
-                    var refInput = document.getElementById('txtReferenciaAcc_{rowNum}');
-                    if (refInput) {{
-                        refInput.value = '{accessory.RefNumber}';
-                        // Trigger validation to fetch accessory data
-                        if (typeof ValidarFormatoDatosAcc === 'function') {{
-                            ValidarFormatoDatosAcc(refInput);
-                        }}
-                        return true;
-                    }}
-                    return false;
-                }})();
-            ";
-            var refSet = await _page.EvaluateAsync<bool>(setRefScript);
+            var refSelector = $"#txtReferenciaAcc_{rowNum}";
+            var amtSelector = $"#txtCantidadAcc_{rowNum}";
             
-            if (!refSet)
+            // Check if input exists
+            var refEl = await _page.QuerySelectorAsync(refSelector);
+            if (refEl == null)
             {
                 WriteToLogFile(AutomationLogLevel.Warning, $"[ACC {rowNum}] Reference input not found");
                 continue;
             }
             
-            // Wait for validation AJAX to complete
-            await Task.Delay(600);
+            // Use Playwright's fill() to simulate real user typing (fires focus, input, change, blur)
+            await _page.FillAsync(refSelector, accessory.RefNumber);
+            // Press Tab to trigger onchange -> ValidarFormatoDatosAcc
+            await _page.PressAsync(refSelector, "Tab");
             
-            // Set Amount - using correct ID: txtCantidadAcc_XXXX
-            var setAmtScript = $@"
-                (function() {{
-                    var amtInput = document.getElementById('txtCantidadAcc_{rowNum}');
-                    if (amtInput) {{
-                        amtInput.value = '{accessory.Amount}';
-                        // Trigger validation
-                        if (typeof ValidarFormatoDatosAcc === 'function') {{
-                            ValidarFormatoDatosAcc(amtInput);
-                        }}
-                        return true;
-                    }}
-                    return false;
-                }})();
-            ";
-            await _page.EvaluateAsync(setAmtScript);
+            // Wait for AJAX validation to fetch description/price
+            await Task.Delay(1500);
             
-            // Wait for price calculation
-            await Task.Delay(600);
+            // Fill amount - also using Playwright's fill to trigger events properly
+            await _page.FillAsync(amtSelector, accessory.Amount.ToString());
+            await _page.PressAsync(amtSelector, "Tab");
             
-            // Try triggering line validation like profiles do
-            var triggerLineValidation = $@"
-                (function() {{
-                    var amtInput = document.getElementById('txtCantidadAcc_{rowNum}');
-                    if (amtInput && typeof ValidarCamposLineaAcc === 'function') {{
-                        ValidarCamposLineaAcc(amtInput, false);
-                        return 'ValidarCamposLineaAcc';
-                    }}
-                    if (amtInput && typeof CalcularImporteAcc === 'function') {{
-                        CalcularImporteAcc('{rowNum}');
-                        return 'CalcularImporteAcc';
-                    }}
-                    // Try triggering change/blur events
-                    if (amtInput) {{
-                        amtInput.dispatchEvent(new Event('change', {{ bubbles: true }}));
-                        amtInput.dispatchEvent(new Event('blur', {{ bubbles: true }}));
-                        return 'events';
-                    }}
-                    return 'none';
-                }})();
-            ";
-            var triggerResult = await _page.EvaluateAsync<string>(triggerLineValidation);
+            // Wait for amount calculation
+            await Task.Delay(1000);
             
-            await Task.Delay(600);
-            
-            // Check if amount was calculated
+            // Check results
             var checkAmountScript = $@"
                 (function() {{
                     var importeInput = document.getElementById('txtImporteAcc_{rowNum}');
                     var descInput = document.getElementById('txtDescripcionAcc_{rowNum}');
+                    var priceInput = document.getElementById('txtPrecioAcc_{rowNum}');
                     return {{
                         amount: importeInput ? importeInput.value : '',
-                        desc: descInput ? descInput.value : ''
+                        desc: descInput ? descInput.value : '',
+                        price: priceInput ? priceInput.value : ''
                     }};
                 }})();
             ";
             var accResult = await _page.EvaluateAsync<Dictionary<string, string>>(checkAmountScript);
             var amount = accResult.GetValueOrDefault("amount", "");
             var pageDesc = accResult.GetValueOrDefault("desc", "");
+            var pagePrice = accResult.GetValueOrDefault("price", "");
             
             if (!string.IsNullOrWhiteSpace(amount))
             {
-                WriteToLogFile(AutomationLogLevel.Success, $"[ACC {rowNum}] Amount calculated: {amount}, DESC={pageDesc}");
+                WriteToLogFile(AutomationLogLevel.Success, $"[ACC {rowNum}] Amount calculated: {amount}, Price={pagePrice}, DESC={pageDesc}");
             }
             else
             {
-                // Retry: re-trigger validation with longer wait
-                WriteToLogFile(AutomationLogLevel.Warning, $"[ACC {rowNum}] Amount not calculated, retrying (trigger={triggerResult})...");
+                // Retry with longer wait - the AJAX might be slow
+                WriteToLogFile(AutomationLogLevel.Warning, $"[ACC {rowNum}] Amount not calculated (price={pagePrice}, desc={pageDesc}), retrying...");
                 
-                // Re-set reference and amount with blur events
-                var retryScript = $@"
-                    (function() {{
-                        var refInput = document.getElementById('txtReferenciaAcc_{rowNum}');
-                        var amtInput = document.getElementById('txtCantidadAcc_{rowNum}');
-                        if (refInput) {{
-                            refInput.focus();
-                            refInput.value = '{accessory.RefNumber}';
-                            refInput.dispatchEvent(new Event('change', {{ bubbles: true }}));
-                            refInput.blur();
-                        }}
-                        if (amtInput) {{
-                            amtInput.focus();
-                            amtInput.value = '{accessory.Amount}';
-                            amtInput.dispatchEvent(new Event('change', {{ bubbles: true }}));
-                            amtInput.blur();
-                        }}
-                        if (typeof ValidarFormatoDatosAcc === 'function' && refInput) {{
-                            ValidarFormatoDatosAcc(refInput);
-                        }}
-                        return true;
-                    }})();
-                ";
-                await _page.EvaluateAsync(retryScript);
-                await Task.Delay(1200);
+                // Click back on the amount field and press Tab again to re-trigger
+                await _page.ClickAsync(amtSelector);
+                await Task.Delay(200);
+                await _page.PressAsync(amtSelector, "Tab");
+                await Task.Delay(1500);
                 
                 accResult = await _page.EvaluateAsync<Dictionary<string, string>>(checkAmountScript);
                 amount = accResult.GetValueOrDefault("amount", "");
                 pageDesc = accResult.GetValueOrDefault("desc", "");
+                pagePrice = accResult.GetValueOrDefault("price", "");
                 
                 if (!string.IsNullOrWhiteSpace(amount))
                 {
-                    WriteToLogFile(AutomationLogLevel.Success, $"[ACC {rowNum}] Amount calculated on retry: {amount}, DESC={pageDesc}");
+                    WriteToLogFile(AutomationLogLevel.Success, $"[ACC {rowNum}] Amount calculated on retry: {amount}, Price={pagePrice}, DESC={pageDesc}");
                 }
                 else
                 {
-                    // Add to unfilled list
                     result.UnfilledAccessories.Add(new UnfilledItem
                     {
                         RowNumber = rowNum,
                         RefNumber = accessory.RefNumber,
                         Amount = accessory.Amount,
                         Description = accessory.Description,
-                        Reason = "Amount not calculated - needs manual review"
+                        Reason = $"Amount not calculated (price={pagePrice}, desc={pageDesc})"
                     });
-                    WriteToLogFile(AutomationLogLevel.Warning, $"[ACC {rowNum}] Amount still not calculated after retries, DESC={pageDesc}");
+                    WriteToLogFile(AutomationLogLevel.Warning, $"[ACC {rowNum}] Still not calculated after retries. Price={pagePrice}, DESC={pageDesc}");
                 }
             }
         }
