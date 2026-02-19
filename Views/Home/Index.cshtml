@@ -544,6 +544,45 @@
                     </div>
                 </div>
 
+                <!-- Generate PDF Quotation -->
+                <div id="generate-pdf-section" class="mt-3" style="display: none;">
+                    <div class="card border-primary">
+                        <div class="card-header bg-primary bg-opacity-10 py-2">
+                            <strong class="text-primary"><i class="bi bi-file-earmark-pdf me-1"></i>Generate PDF Quotation</strong>
+                        </div>
+                        <div class="card-body p-3">
+                            <div class="row g-2 mb-2">
+                                <div class="col-md-6">
+                                    <label class="form-label small mb-1">Client Name</label>
+                                    <input type="text" class="form-control form-control-sm" id="pdf-client-name" placeholder="Client name">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label small mb-1">Client Email</label>
+                                    <input type="email" class="form-control form-control-sm" id="pdf-client-email" placeholder="email@example.com">
+                                </div>
+                            </div>
+                            <div class="row g-2 mb-2">
+                                <div class="col-md-6">
+                                    <label class="form-label small mb-1">Client Phone</label>
+                                    <input type="text" class="form-control form-control-sm" id="pdf-client-phone" placeholder="+355...">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label small mb-1">VAT Rate (%)</label>
+                                    <input type="number" class="form-control form-control-sm" id="pdf-vat-rate" value="20" step="0.1">
+                                </div>
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label small mb-1">Notes</label>
+                                <textarea class="form-control form-control-sm" id="pdf-notes" rows="2" placeholder="Additional notes..."></textarea>
+                            </div>
+                            <button type="button" class="btn btn-primary w-100" id="btn-generate-pdf" onclick="generateQuotationPdf()">
+                                <i class="bi bi-file-earmark-pdf me-2"></i>Generate PDF Quotation
+                            </button>
+                            <div id="pdf-generation-result" class="mt-2" style="display: none;"></div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Automation Result -->
                 <div id="automation-summary" class="mt-3" style="display: none;"></div>
             </div>
@@ -1064,6 +1103,79 @@
         
         // Check Excel status on page load
         excelCalc.checkStatus();
+
+        // Generate PDF Quotation
+        async function generateQuotationPdf() {
+            const btn = document.getElementById('btn-generate-pdf');
+            const resultDiv = document.getElementById('pdf-generation-result');
+            
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Generating...';
+            resultDiv.style.display = 'none';
+
+            const autoResult = window._lastAutomationResult;
+            const cortizoTotal = autoResult?.cortizoTotal || 
+                parseFloat(document.getElementById('stat-cortizo-total')?.textContent) || 0;
+
+            const request = {
+                cortizoTotal: cortizoTotal,
+                clientName: document.getElementById('pdf-client-name').value,
+                clientEmail: document.getElementById('pdf-client-email').value,
+                clientPhone: document.getElementById('pdf-client-phone').value,
+                clientCode: document.getElementById('clientCode')?.value || '',
+                clientPurchaseOrder: document.getElementById('clientPurchaseOrder')?.value || '',
+                generalFinish1: document.getElementById('generalFinish1')?.value || '90',
+                generalShade1: document.getElementById('generalShade1')?.value || '',
+                generalFinish2: document.getElementById('generalFinish2')?.value || '90',
+                generalShade2: document.getElementById('generalShade2')?.value || '',
+                vatRate: parseFloat(document.getElementById('pdf-vat-rate').value) || 20,
+                notes: document.getElementById('pdf-notes').value,
+                unfilledProfiles: autoResult?.unfilledProfiles || [],
+                unfilledAccessories: autoResult?.unfilledAccessories || [],
+                missingCalculationItems: window._lastMissingItems || []
+            };
+
+            try {
+                const response = await fetch('/Home/GenerateVisorQuotation', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(request)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    resultDiv.style.display = 'block';
+                    resultDiv.innerHTML = `
+                        <div class="alert alert-success py-2 mb-0">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div>
+                                    <i class="bi bi-check-circle me-1"></i>
+                                    <strong>${result.quotationNumber}</strong> - ${result.total.toFixed(2)} ${result.currency}
+                                </div>
+                                <a href="${result.downloadUrl}" target="_blank" class="btn btn-sm btn-success">
+                                    <i class="bi bi-download me-1"></i>Download PDF
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                    addLogEntry({
+                        timestamp: new Date().toISOString(),
+                        level: 'Success',
+                        message: `PDF Quotation generated: ${result.quotationNumber} (${result.total.toFixed(2)} ${result.currency})`
+                    });
+                } else {
+                    resultDiv.style.display = 'block';
+                    resultDiv.innerHTML = `<div class="alert alert-danger py-2 mb-0">${result.message}</div>`;
+                }
+            } catch (error) {
+                resultDiv.style.display = 'block';
+                resultDiv.innerHTML = `<div class="alert alert-danger py-2 mb-0">Error: ${error.message}</div>`;
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-file-earmark-pdf me-2"></i>Generate PDF Quotation';
+            }
+        }
 
         // Accordion chevron rotation - Filled Items
         const filledBody = document.getElementById('filledItemsBody');

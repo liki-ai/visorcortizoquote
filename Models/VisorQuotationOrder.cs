@@ -39,6 +39,9 @@ public class VisorQuotationOrder
     // Profile items with prices (from Cortizo)
     public List<VisorQuotationItem> Items { get; set; } = new();
     
+    // Accessory/Hardware items (separate section in PDF)
+    public List<VisorQuotationItem> AccessoryItems { get; set; } = new();
+    
     // Totals
     public decimal Subtotal { get; set; }
     public decimal VatRate { get; set; } = 20m; // Albania VAT rate

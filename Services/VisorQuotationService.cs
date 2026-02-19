@@ -104,11 +104,30 @@ public class VisorQuotationService
                 Shade = !string.IsNullOrEmpty(profile.Shade1) ? profile.Shade1 : viewModel.GeneralShade1,
                 Quantity = profile.Amount,
                 Length = profile.TotalLength,
-                UnitPrice = 0, // Will be filled from Cortizo
-                TotalPrice = 0 // Will be filled from Cortizo
+                UnitPrice = 0,
+                TotalPrice = 0
             };
 
             order.Items.Add(item);
+        }
+
+        // Add accessories/hardware items
+        int accLineNum = 1;
+        foreach (var acc in parsedPdf.Accessories.Where(a => a.IsSelected))
+        {
+            var item = new VisorQuotationItem
+            {
+                LineNumber = accLineNum++,
+                RefNumber = acc.RefNumber,
+                Description = acc.Description,
+                Finish = acc.Finish ?? "",
+                Shade = "",
+                Quantity = acc.Amount,
+                Length = 0,
+                UnitPrice = 0,
+                TotalPrice = 0
+            };
+            order.AccessoryItems.Add(item);
         }
 
         // Use Cortizo total
@@ -228,8 +247,33 @@ public class VisorQuotationService
                 });
             });
 
-            // Items table
-            col.Item().Element(c => ComposeTable(c, order));
+            // Profiles section header
+            if (order.Items.Count > 0)
+            {
+                col.Item().PaddingBottom(5).Text($"PROFILES ({order.Items.Count} items)")
+                    .FontSize(11).SemiBold().FontColor(Colors.Blue.Darken2);
+                col.Item().Element(c => ComposeTable(c, order));
+            }
+
+            // Accessories section
+            if (order.AccessoryItems.Count > 0)
+            {
+                col.Item().PaddingTop(15).PaddingBottom(5)
+                    .Text($"ACCESSORIES & HARDWARE ({order.AccessoryItems.Count} items)")
+                    .FontSize(11).SemiBold().FontColor(Colors.Teal.Darken2);
+                col.Item().Element(c => ComposeAccessoriesTable(c, order));
+            }
+
+            // Cortizo total reference
+            if (order.CortizoTotal > 0)
+            {
+                col.Item().PaddingTop(10).Background(Colors.Blue.Lighten5).Padding(8).Row(r =>
+                {
+                    r.RelativeItem().Text("Cortizo Estimate Total:").SemiBold().FontSize(10);
+                    r.AutoItem().Text($"{order.CortizoTotal:N2} {order.Currency}").Bold().FontSize(11)
+                        .FontColor(Colors.Blue.Darken3);
+                });
+            }
 
             // Totals
             col.Item().PaddingTop(10).AlignRight().Width(250).Column(totals =>
@@ -259,7 +303,7 @@ public class VisorQuotationService
                     unfilled.Item().Background(Colors.Red.Lighten4).Padding(10).Column(warning =>
                     {
                         warning.Item().Text("ITEMS REQUIRING MANUAL REVIEW").FontSize(11).Bold().FontColor(Colors.Red.Darken3);
-                        warning.Item().PaddingTop(5).Text("The following items could not be automatically filled and need manual verification:")
+                        warning.Item().PaddingTop(5).Text("The following items could not be automatically calculated and need manual verification:")
                             .FontSize(9).FontColor(Colors.Red.Darken2);
                         
                         if (order.UnfilledProfiles.Count > 0)
@@ -365,6 +409,58 @@ public class VisorQuotationService
                 table.Cell().Background(bgColor).Padding(4).Text($"{item.Finish}\n{item.Shade}").FontSize(7);
                 table.Cell().Background(bgColor).Padding(4).AlignRight().Text(item.Quantity.ToString()).FontSize(8);
                 table.Cell().Background(bgColor).Padding(4).AlignRight().Text($"{item.Length:N1}m").FontSize(8);
+                table.Cell().Background(bgColor).Padding(4).AlignRight()
+                    .Text(item.UnitPrice > 0 ? $"{item.UnitPrice:N2}" : "-").FontSize(8);
+                table.Cell().Background(bgColor).Padding(4).AlignRight()
+                    .Text(item.TotalPrice > 0 ? $"{item.TotalPrice:N2}" : "-").FontSize(8);
+            }
+        });
+    }
+
+    private void ComposeAccessoriesTable(IContainer container, VisorQuotationOrder order)
+    {
+        var headerBg = Colors.Teal.Darken2;
+
+        container.Table(table =>
+        {
+            table.ColumnsDefinition(cols =>
+            {
+                cols.ConstantColumn(30);  // #
+                cols.ConstantColumn(70);  // Ref
+                cols.RelativeColumn(4);   // Description
+                cols.ConstantColumn(70);  // Finish
+                cols.ConstantColumn(45);  // Qty
+                cols.ConstantColumn(65);  // Unit Price
+                cols.ConstantColumn(75);  // Total
+            });
+
+            table.Header(header =>
+            {
+                header.Cell().Background(headerBg).Padding(5)
+                    .Text("#").FontColor(Colors.White).FontSize(9).SemiBold();
+                header.Cell().Background(headerBg).Padding(5)
+                    .Text("REF").FontColor(Colors.White).FontSize(9).SemiBold();
+                header.Cell().Background(headerBg).Padding(5)
+                    .Text("DESCRIPTION").FontColor(Colors.White).FontSize(9).SemiBold();
+                header.Cell().Background(headerBg).Padding(5)
+                    .Text("FINISH").FontColor(Colors.White).FontSize(9).SemiBold();
+                header.Cell().Background(headerBg).Padding(5)
+                    .Text("QTY").FontColor(Colors.White).FontSize(9).SemiBold();
+                header.Cell().Background(headerBg).Padding(5)
+                    .Text("PRICE").FontColor(Colors.White).FontSize(9).SemiBold();
+                header.Cell().Background(headerBg).Padding(5)
+                    .Text("TOTAL").FontColor(Colors.White).FontSize(9).SemiBold();
+            });
+
+            foreach (var item in order.AccessoryItems)
+            {
+                var bgColor = item.LineNumber % 2 == 0 ? Colors.Grey.Lighten4 : Colors.White;
+
+                table.Cell().Background(bgColor).Padding(4).Text(item.LineNumber.ToString()).FontSize(8);
+                table.Cell().Background(bgColor).Padding(4).Text(item.RefNumber).FontSize(8).SemiBold();
+                table.Cell().Background(bgColor).Padding(4).Text(item.Description).FontSize(8);
+                table.Cell().Background(bgColor).Padding(4).Text(item.Finish).FontSize(7);
+                table.Cell().Background(bgColor).Padding(4).AlignRight().Text(item.Quantity.ToString()).FontSize(8);
                 table.Cell().Background(bgColor).Padding(4).AlignRight()
                     .Text(item.UnitPrice > 0 ? $"{item.UnitPrice:N2}" : "-").FontSize(8);
                 table.Cell().Background(bgColor).Padding(4).AlignRight()

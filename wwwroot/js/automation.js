@@ -420,6 +420,13 @@ function updateProgress(current, total, status) {
 function handleComplete(result) {
     isRunning = false;
 
+    // Store result for PDF generation
+    if (typeof _lastAutomationResult !== 'undefined') {
+        window._lastAutomationResult = result;
+    } else {
+        window._lastAutomationResult = result;
+    }
+
     hideStopButton();
     const confirmBtn = document.getElementById('btn-confirm');
     if (confirmBtn) {
@@ -429,6 +436,10 @@ function handleComplete(result) {
 
     hideCurrentItem();
     showFilledSummary();
+
+    // Show Generate PDF section
+    const pdfSection = document.getElementById('generate-pdf-section');
+    if (pdfSection) pdfSection.style.display = 'block';
 
     // Show download log button
     const dlBtn = document.getElementById('btn-download-log');

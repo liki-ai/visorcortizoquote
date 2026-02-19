@@ -164,6 +164,92 @@ public class CortizoAutomationService : IAsyncDisposable
                 }
             }
 
+            // ====================================================================
+            // FINAL VERIFICATION: Wait for all AJAX to settle, then check ALL rows
+            // ====================================================================
+            cancellationToken.ThrowIfCancellationRequested();
+            
+            Log(result, AutomationLogLevel.Info, "All items filled. Waiting 10 seconds for all AJAX calculations to settle...");
+            await Task.Delay(10000, cancellationToken);
+            
+            Log(result, AutomationLogLevel.Info, "[FINAL CHECK] Starting comprehensive verification of all rows...");
+            
+            // Final check: Profiles
+            var selectedProfiles2 = profiles.Where(p => p.IsSelected).ToList();
+            for (int i = 0; i < selectedProfiles2.Count; i++)
+            {
+                var profile = selectedProfiles2[i];
+                var rowNum = (i + 1).ToString("D4");
+                var checkScript = $@"
+                    (function() {{
+                        var importeEl = document.getElementById('txtImporte_{rowNum}');
+                        var descEl = document.getElementById('txtDescripcion_{rowNum}');
+                        return {{
+                            amount: importeEl ? importeEl.value : '',
+                            desc: descEl ? descEl.value : ''
+                        }};
+                    }})();
+                ";
+                var checkResult = await _page.EvaluateAsync<Dictionary<string, string>>(checkScript);
+                var amount = checkResult.GetValueOrDefault("amount", "");
+                
+                if (string.IsNullOrWhiteSpace(amount))
+                {
+                    result.UnfilledProfiles.Add(new UnfilledItem
+                    {
+                        RowNumber = rowNum,
+                        RefNumber = profile.RefNumber,
+                        Amount = profile.Amount,
+                        Description = profile.Description,
+                        Reason = "Amount not calculated - needs manual review"
+                    });
+                }
+            }
+            
+            Log(result, AutomationLogLevel.Info, 
+                $"[FINAL CHECK] Profiles: {selectedProfiles2.Count - result.UnfilledProfiles.Count}/{selectedProfiles2.Count} have amounts");
+            
+            // Final check: Accessories
+            if (selectedAccessories.Count > 0)
+            {
+                for (int i = 0; i < selectedAccessories.Count; i++)
+                {
+                    var acc = selectedAccessories[i];
+                    var rowNum = (i + 1).ToString("D4");
+                    var checkScript = $@"
+                        (function() {{
+                            var importeEl = document.getElementById('txtImporteAcc_{rowNum}');
+                            var descEl = document.getElementById('txtDescripcionAcc_{rowNum}');
+                            var priceEl = document.getElementById('txtPrecioAcc_{rowNum}');
+                            return {{
+                                amount: importeEl ? importeEl.value : '',
+                                desc: descEl ? descEl.value : '',
+                                price: priceEl ? priceEl.value : ''
+                            }};
+                        }})();
+                    ";
+                    var checkResult = await _page.EvaluateAsync<Dictionary<string, string>>(checkScript);
+                    var amount = checkResult.GetValueOrDefault("amount", "");
+                    var pageDesc = checkResult.GetValueOrDefault("desc", "");
+                    var pagePrice = checkResult.GetValueOrDefault("price", "");
+                    
+                    if (string.IsNullOrWhiteSpace(amount))
+                    {
+                        result.UnfilledAccessories.Add(new UnfilledItem
+                        {
+                            RowNumber = rowNum,
+                            RefNumber = acc.RefNumber,
+                            Amount = acc.Amount,
+                            Description = acc.Description,
+                            Reason = $"Amount not calculated (price={pagePrice}, desc={pageDesc})"
+                        });
+                    }
+                }
+                
+                Log(result, AutomationLogLevel.Info, 
+                    $"[FINAL CHECK] Accessories: {selectedAccessories.Count - result.UnfilledAccessories.Count}/{selectedAccessories.Count} have amounts");
+            }
+
             // Step 7: Optional actions
             if (viewModel.GenerateReport)
             {
@@ -198,6 +284,10 @@ public class CortizoAutomationService : IAsyncDisposable
                         $"  - Row {item.RowNumber}: REF {item.RefNumber} x {item.Amount} - {item.Reason}");
                 }
             }
+            else
+            {
+                Log(result, AutomationLogLevel.Success, "All profiles have calculated amounts!");
+            }
             
             if (result.UnfilledAccessories.Count > 0)
             {
@@ -208,6 +298,10 @@ public class CortizoAutomationService : IAsyncDisposable
                     Log(result, AutomationLogLevel.Warning, 
                         $"  - Row {item.RowNumber}: REF {item.RefNumber} x {item.Amount} - {item.Reason}");
                 }
+            }
+            else if (selectedAccessories.Count > 0)
+            {
+                Log(result, AutomationLogLevel.Success, "All accessories have calculated amounts!");
             }
 
             result.Success = result.UnfilledProfiles.Count == 0 && result.UnfilledAccessories.Count == 0;
@@ -745,46 +839,7 @@ public class CortizoAutomationService : IAsyncDisposable
             }
         }
         
-        // Final pass: check all rows and log any that are missing amounts
-        WriteToLogFile(AutomationLogLevel.Info, "[FILL] Final verification pass...");
-        
-        for (int i = 0; i < profiles.Count; i++)
-        {
-            var profile = profiles[i];
-            var rowNum = (i + 1).ToString("D4");
-            var checkScript = $@"
-                (function() {{
-                    const importeInput = document.getElementById('txtImporte_{rowNum}');
-                    return importeInput ? importeInput.value : '';
-                }})();
-            ";
-            var finalAmount = await _page.EvaluateAsync<string>(checkScript);
-            
-            if (string.IsNullOrWhiteSpace(finalAmount))
-            {
-                // Add to unfilled list
-                result.UnfilledProfiles.Add(new UnfilledItem
-                {
-                    RowNumber = rowNum,
-                    RefNumber = profile.RefNumber,
-                    Amount = profile.Amount,
-                    Description = profile.Description,
-                    Reason = "Amount not calculated - needs manual review"
-                });
-                WriteToLogFile(AutomationLogLevel.Warning, $"[FILL] Row {rowNum} (REF {profile.RefNumber}) missing amount - added to unfilled list");
-            }
-        }
-        
-        if (result.UnfilledProfiles.Count > 0)
-        {
-            WriteToLogFile(AutomationLogLevel.Warning, $"[FILL] {result.UnfilledProfiles.Count} rows missing amounts - need manual review");
-        }
-        else
-        {
-            WriteToLogFile(AutomationLogLevel.Success, "[FILL] All rows have amounts calculated!");
-        }
-        
-        WriteToLogFile(AutomationLogLevel.Info, "[FILL] All rows processed!");
+        WriteToLogFile(AutomationLogLevel.Info, "[FILL] All profile rows processed! Final verification will happen after all items are filled.");
         FlushLogBuffer();
     }
 
@@ -981,30 +1036,13 @@ public class CortizoAutomationService : IAsyncDisposable
                     }
                     else
                     {
-                        result.UnfilledAccessories.Add(new UnfilledItem
-                        {
-                            RowNumber = rowNum,
-                            RefNumber = accessory.RefNumber,
-                            Amount = accessory.Amount,
-                            Description = accessory.Description,
-                            Reason = $"Amount not calculated (price={pagePrice}, desc={pageDesc})"
-                        });
-                        WriteToLogFile(AutomationLogLevel.Warning, $"[ACC {rowNum}] Failed after 2 retries. Price={pagePrice}, DESC={pageDesc}");
+                        WriteToLogFile(AutomationLogLevel.Warning, $"[ACC {rowNum}] Not yet calculated after retries (AJAX may still be pending). Will verify at the end.");
                     }
                 }
             }
         }
         
-        if (result.UnfilledAccessories.Count > 0)
-        {
-            WriteToLogFile(AutomationLogLevel.Warning, $"[ACCESSORIES] {result.UnfilledAccessories.Count} accessories missing amounts - need manual review");
-        }
-        else
-        {
-            WriteToLogFile(AutomationLogLevel.Success, "[ACCESSORIES] All accessories have amounts calculated!");
-        }
-        
-        WriteToLogFile(AutomationLogLevel.Info, "[ACCESSORIES] Accessory fill complete!");
+        WriteToLogFile(AutomationLogLevel.Info, "[ACCESSORIES] All accessory rows processed! Final verification will happen after all items are filled.");
         FlushLogBuffer();
     }
 
