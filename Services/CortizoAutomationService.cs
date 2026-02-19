@@ -250,14 +250,67 @@ public class CortizoAutomationService : IAsyncDisposable
                     $"[FINAL CHECK] Accessories: {selectedAccessories.Count - result.UnfilledAccessories.Count}/{selectedAccessories.Count} have amounts");
             }
 
-            // Step 7: Optional actions
-            if (viewModel.GenerateReport)
+            // Step 7: Generate Report - capture the Cortizo ZIP download
+            Log(result, AutomationLogLevel.Info, "Clicking GENERATE REPORT to download Cortizo report ZIP...");
+            try
             {
-                Log(result, AutomationLogLevel.Info, "Generating report...");
-                await ClickButtonAsync("GENERATE REPORT");
-                await Task.Delay(2000, cancellationToken);
+                var downloadsDir = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "downloads");
+                Directory.CreateDirectory(downloadsDir);
+                
+                var download = await _page.RunAndWaitForDownloadAsync(async () =>
+                {
+                    await _page.EvaluateAsync("EnviarDatosInforme('Valoracion','','')");
+                }, new PageRunAndWaitForDownloadOptions { Timeout = 60000 });
+                
+                var suggestedName = download.SuggestedFilename;
+                if (string.IsNullOrEmpty(suggestedName))
+                    suggestedName = $"cortizo_report_{DateTime.Now:yyyyMMdd_HHmmss}.zip";
+                
+                var savePath = Path.Combine(downloadsDir, suggestedName);
+                await download.SaveAsAsync(savePath);
+                
+                result.ReportZipPath = savePath;
+                result.ReportFileName = suggestedName;
+                result.ReportDownloadUrl = $"/downloads/{suggestedName}";
+                
+                Log(result, AutomationLogLevel.Success, $"Cortizo report downloaded: {suggestedName}");
+            }
+            catch (TimeoutException)
+            {
+                Log(result, AutomationLogLevel.Warning, "Report download timed out - the button may not have triggered a download. Trying alternate click...");
+                try
+                {
+                    var download = await _page.RunAndWaitForDownloadAsync(async () =>
+                    {
+                        var reportBtn = await _page.QuerySelectorAsync(".botonnuevavaloracion:has-text('GENERATE REPORT')");
+                        if (reportBtn != null)
+                            await reportBtn.ClickAsync();
+                        else
+                            await ClickButtonAsync("GENERATE REPORT");
+                    }, new PageRunAndWaitForDownloadOptions { Timeout = 30000 });
+                    
+                    var downloadsDir2 = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "downloads");
+                    var suggestedName = download.SuggestedFilename ?? $"cortizo_report_{DateTime.Now:yyyyMMdd_HHmmss}.zip";
+                    var savePath = Path.Combine(downloadsDir2, suggestedName);
+                    await download.SaveAsAsync(savePath);
+                    
+                    result.ReportZipPath = savePath;
+                    result.ReportFileName = suggestedName;
+                    result.ReportDownloadUrl = $"/downloads/{suggestedName}";
+                    
+                    Log(result, AutomationLogLevel.Success, $"Cortizo report downloaded (retry): {suggestedName}");
+                }
+                catch (Exception retryEx)
+                {
+                    Log(result, AutomationLogLevel.Warning, $"Could not capture report download: {retryEx.Message}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Log(result, AutomationLogLevel.Warning, $"Report download failed: {ex.Message}");
             }
 
+            // Optional: Create proforma
             if (viewModel.CreateProforma)
             {
                 Log(result, AutomationLogLevel.Info, "Creating proforma...");

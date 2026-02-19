@@ -262,16 +262,20 @@ function parseLogForProgress(logEntry) {
         // Already counted via individual rows - no double-counting
     }
 
-    // Generating report
-    else if (msg.includes('Generating report')) {
-        setProgressLabel('Generating report...');
+    // Generating report / downloading
+    else if (msg.includes('GENERATE REPORT')) {
+        setProgressLabel('Downloading Cortizo report...');
         setProgressBar(93);
+    }
+    else if (msg.includes('Cortizo report downloaded')) {
+        setProgressLabel('Report downloaded!');
+        setProgressBar(96);
     }
 
     // Creating proforma
     else if (msg.includes('Creating proforma')) {
         setProgressLabel('Creating proforma...');
-        setProgressBar(95);
+        setProgressBar(97);
     }
 
     // Stopped by user
@@ -437,6 +441,16 @@ function handleComplete(result) {
     hideCurrentItem();
     showFilledSummary();
 
+    // Show Cortizo report download if available
+    if (result.reportDownloadUrl) {
+        const reportSection = document.getElementById('cortizo-report-section');
+        if (reportSection) reportSection.style.display = 'block';
+        const reportBtn = document.getElementById('btn-download-cortizo-report');
+        if (reportBtn) reportBtn.href = result.reportDownloadUrl;
+        const reportName = document.getElementById('cortizo-report-filename');
+        if (reportName) reportName.textContent = result.reportFileName || '';
+    }
+
     // Show Generate PDF section
     const pdfSection = document.getElementById('generate-pdf-section');
     if (pdfSection) pdfSection.style.display = 'block';
@@ -492,6 +506,12 @@ function handleComplete(result) {
                 <h6 class="alert-heading mb-1">${result.success ? 'Automation Completed' : 'Completed with Issues'}</h6>
                 <small>Processed: ${result.successfulItems}/${result.totalItems} items
                 ${result.cortizoTotal > 0 ? ` | Cortizo Total: <strong>${result.cortizoTotal.toFixed(2)} EUR</strong>` : ''}</small>
+                ${result.reportDownloadUrl ? `
+                <div class="mt-2 mb-2">
+                    <a href="${result.reportDownloadUrl}" class="btn btn-success" download>
+                        <i class="bi bi-file-earmark-zip me-2"></i>Download Cortizo Report (${result.reportFileName || 'ZIP'})
+                    </a>
+                </div>` : ''}
                 ${unfilledHtml}
                 <div class="mt-2">
                     ${result.screenshotPath ? `<a href="/Home/DownloadFile?path=${encodeURIComponent(result.screenshotPath)}" class="btn btn-sm btn-outline-primary me-1">Screenshot</a>` : ''}

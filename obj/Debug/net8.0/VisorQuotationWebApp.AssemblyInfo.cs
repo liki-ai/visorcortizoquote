@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("VisorQuotationWebApp")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0504b9b35e96e6950aaa207403c53c13edfd6db4")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+4f9b788fb3b776a5aa2a0f40c04648daaf62326d")]
 [assembly: System.Reflection.AssemblyProductAttribute("VisorQuotationWebApp")]
 [assembly: System.Reflection.AssemblyTitleAttribute("VisorQuotationWebApp")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

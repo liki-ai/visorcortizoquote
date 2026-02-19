@@ -28,6 +28,21 @@ public class AutomationRunResult
     /// Total from Cortizo (ESTIMATE TOTAL)
     /// </summary>
     public decimal CortizoTotal { get; set; }
+    
+    /// <summary>
+    /// Path to the downloaded Cortizo report ZIP file
+    /// </summary>
+    public string? ReportZipPath { get; set; }
+    
+    /// <summary>
+    /// URL to download the Cortizo report ZIP (relative)
+    /// </summary>
+    public string? ReportDownloadUrl { get; set; }
+    
+    /// <summary>
+    /// Original filename of the Cortizo report ZIP
+    /// </summary>
+    public string? ReportFileName { get; set; }
 }
 
 /// <summary>
